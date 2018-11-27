@@ -16,16 +16,18 @@ Another board will manage all of the temperature and pressure sensors, approxima
 Using data from https://dl.ubnt.com/datasheets/rocketm/RocketM_DS.pdf
 
 The Ubiquiti Rocket M900 communicates at an interval of 900 MHz with a throughput of 150/Mbps, it has one 10/100Mbps Ethernet port.
-Must be aware of the however noise levels are typically higher. Can pair with a PtP link or PtMP network.
+Must be aware of the however noise levels are typically higher. Can pair with a Point to Point link or Point to Multi Point network.
 
 64 MB SDRAM, 8 MB Flash
 
-The main arduino will talk to the M900 using the 10/100 ethernet port on the radio.
-Can operate between 3MHz and 16MHz
+The main Arduino will talk to the M900 using the 10/100 ethernet port on the radio.
+Can operate between 3MHz and 16MHz.
 
 ### MAIN CONTROLLER ###
 
-The main controller will be an arduino mega since it has more I/O space to work with. It operates at 16MHz and will use an Arduino Ethernet Shield 2to communicate with the m900 rocket
+The main controller will be an Arduino Mega because it has more I/O pins (specifically analog) and has 4 serial ports to allow for communication. It operates at 16MHz and will use an Arduino Ethernet Shield 2 to communicate with the M900 Rocket.
+
+The main arduino will be directly connected to the motorcontrollers using an 3 input AND gate that is connected to 2 ports on the arduino
 
 
 
