@@ -23,16 +23,18 @@ Must be aware of the however noise levels are typically higher. Can pair with a 
 The main Arduino will talk to the M900 using the 10/100 ethernet port on the radio.
 Can operate between 3MHz and 16MHz.
 
+# Arduino Structure
+
 ### MAIN CONTROLLER ###
 
-The main controller will be an Arduino Mega because it has more I/O pins (specifically analog) and has 4 serial ports to allow for communication. It operates at 16MHz and will use an Arduino Ethernet Shield 2 to communicate with the M900 Rocket.
+The main controller will be an Arduino Mega because it has more I/O pins (specifically analog) and has 4 serial ports to allow for communication to numerous internal boards. It operates at 16MHz.
 
-The main arduino will be directly connected to the motorcontrollers using an 3 input AND gate that is connected to 2 ports on the arduino
+The main arduino will be directly connected to the motorcontrollers using a 3 input AND gate that is also connected to a communication arduino to enable remote shut off. As well as a physical switch that will be mounted on the arduino, which will allow for the hyperloop pod to be turned on and off once placed on the track and prevent motor operation in case of an arduino malfunction. 
 
+### NETWORK CONTROLLER ###
 
+This controller will be used to communicate with the Ubiquiti M900 Rocket via the Arduino Ethernet Shield 2 this the board will be connected to the Main Controller board using the Serial port, this allows the remote commands to the pod. It will have a digital output to the motor controllers via the AND gate to allow for remote stopping.
 
- 
- 
  
 Written by Jack Demeter
 Uses libraries and code provided by adafruit for BMO055 sensor
