@@ -30,6 +30,34 @@ Created by Jack Demeter 2018
 #include <Wire.h> 
 
 
+//     VARIABLES       //
+
+pinMode(2, OUTPUT); // PLACE LEDs ON PIN 2 (RGB STRIP??)
+
+
+
+enum state 
+{
+  FAULT,
+  SAFE,
+  RTL,  //Ready To Launch
+  LAUNCH,
+  COAST,
+  BRAKE,
+  CRAWL,
+  NUM_STATE
+};
+
+enum crit_state 
+{
+  CRIT_FAULT,
+  CRIT_SAFE,
+  CRIT_ACTION
+};
+
+
+
+
 
 //     FUNCTIONS       //
 
@@ -48,17 +76,43 @@ Created by Jack Demeter 2018
 
 // TODO create state functions
 
+void fault(init_state)
+{
+  // mark the state the pod was in when the error started
+  state current_state = init_state;
+  while (current_state == state):
+  {
+    // TODO report data
+    
+    // TODO convert ethernet signal such that any change in the current signal causes the pod to shut off.
+    current_state = get_state();
+  }
+  exit();
+  // Doesn't allow access to any other states
+}
+
+
+void safe()
+{
+  state current_state = get_state();
+  if (state == RTL):
+  {
+    digitalWrite()
+  }
+  // Nothing happens in this state however it allows for the state to be changed to RTL after time period
+  // TODO report data
+  
+  // TODO convert ethernet signal such that any change in the current signal causes the pod to shut off.
+  
+  // Doesn't allow access to any other states
+}
+
 // TODO, throw error if any issue comes up, catch function
 
+// TODO get_state() get ethernet state data from the base
 
+// TODO create event log (stretch goal)
 
-
-
-//     VARIABLES       //
-
-// TODO create typedef for state (or a chart)
-
-// TODO create event log
 
 /* 
  *  setup requirements:   
@@ -69,6 +123,9 @@ Created by Jack Demeter 2018
  */
 
 void setup():
+{
+  
+}
     
 
 /*
@@ -81,7 +138,6 @@ void setup():
 
 void loop():
     // allows for over ethernet communication to the pod
-    command = read_command()
     crit_state = read_state()
     state = det_state(crit_state, command)
     if state == 0:
