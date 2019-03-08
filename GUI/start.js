@@ -23,7 +23,7 @@ http.createServer(function (req, res) {
     if (url_parts.query == "EmergencyStop=True")
     {
       console.log("EMERGENCY STOP ENGAGED");
-      
+
     }
 
   });
