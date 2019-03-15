@@ -6,14 +6,60 @@ playground for messing around and testing the PyQT5 library
 """
 
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QPushButton, QMessageBox, QAction, QTableWidget, QTableWidgetItem, QVBoxLayout, QSizePolicy, QProgressBar
+from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QPushButton, QMessageBox, QAction, QTableWidget, QTableWidgetItem, QVBoxLayout, QSizePolicy, QProgressBar, QLayout, QGridLayout, QDockWidget
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtCore import pyqtSlot, QSize
 
 # QMain window used for status bar
 # QMessageBox to bring in pop ups
 
+class WidgetTable(QDockWidget):
+    def __init__(self, left = 0, top = 0, width = 100, height = 100):
+        super().__init__()
+        self.title = 'PyQt5 table - pythonspot.com'
+        self.left = left
+        self.top = top
+        self.width = width
+        self.height = height
+        self.initUI()
 
+    def initUI(self):
+        self.setWindowTitle(self.title)
+        self.setGeometry(self.left, self.top, self.width, self.height)
+
+        self.createTable()
+
+        # Add box layout, add table to box layout and add box layout to widget
+        self.layout = QVBoxLayout()
+        self.layout.addWidget(self.tableWidget)
+        self.setLayout(self.layout)
+
+        # Show widget
+        self.show()
+
+    def createTable(self):
+        # Create table
+        self.tableWidget = QTableWidget()
+        self.tableWidget.setRowCount(4)
+        self.tableWidget.setColumnCount(2)
+        self.tableWidget.setItem(0, 0, QTableWidgetItem("Cell (1,1)"))
+        self.tableWidget.setItem(0, 1, QTableWidgetItem("Cell (1,2)"))
+        self.tableWidget.setItem(1, 0, QTableWidgetItem("Cell (2,1)"))
+        self.tableWidget.setItem(1, 1, QTableWidgetItem("Cell (2,2)"))
+        self.tableWidget.setItem(2, 0, QTableWidgetItem("Cell (3,1)"))
+        self.tableWidget.setItem(2, 1, QTableWidgetItem("Cell (3,2)"))
+        self.tableWidget.setItem(3, 0, QTableWidgetItem("Cell (4,1)"))
+        self.tableWidget.setItem(3, 1, QTableWidgetItem("Cell (4,2)"))
+        self.tableWidget.move(0, 0)
+
+        # table selection change
+        self.tableWidget.doubleClicked.connect(self.on_click)
+
+    @pyqtSlot()
+    def on_click(self):
+        print("\n")
+        for currentQTableWidgetItem in self.tableWidget.selectedItems():
+            print(currentQTableWidgetItem.row(), currentQTableWidgetItem.column(), currentQTableWidgetItem.text())
 
 
 class App(QMainWindow):
@@ -34,7 +80,11 @@ class App(QMainWindow):
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
         self.setWindowIcon(QIcon(r'images\QH_icon.png'))
+
         # self.addDockWidget()
+        # add widget table
+        table = WidgetTable(100, 100,200,200)
+        self.setCentralWidget(table)
 
         # create a button
         button = QPushButton('Emergency\nStop', self)
@@ -65,6 +115,9 @@ class App(QMainWindow):
         progress = QProgressBar(self)
         progress.setGeometry(450, 150, 800, 15)
         progress.setValue(50)
+
+
+
 
 
         self.show()
