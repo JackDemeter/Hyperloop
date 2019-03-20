@@ -6,9 +6,10 @@ playground for messing around and testing the PyQT5 library
 """
 
 import sys, os
-from PyQt5.QtWidgets import QApplication, QWidget, QTableWidget, QMainWindow, QPushButton, QMessageBox, QAction, QTableView, QTableWidgetItem, QVBoxLayout, QSizePolicy, QProgressBar, QLabel
+from PyQt5.QtWidgets import QApplication, QWidget, QTableWidget, QMainWindow, QPushButton, QMessageBox, QAction, \
+QTableView, QTableWidgetItem, QVBoxLayout, QSizePolicy, QProgressBar, QLabel, QInputDialog
 from PyQt5.QtGui import QIcon, QPixmap, QStatusTipEvent
-from PyQt5.QtCore import pyqtSlot, QSize
+from PyQt5.QtCore import pyqtSlot, QSize, QTimer
 import widget
 
 
@@ -18,12 +19,14 @@ class App(QMainWindow):
         self.title = "Queen's Hyperloop Design Team"
         self.left = 600
         self.top = 200
-        self.width = 1280
-        self.height = 720
-        self.windowIcon()
+        self.width = 1800
+        self.height = 900
         self.ping = 5
         self.connectionPort = "No connection"
-        self.status = "please"
+        self.myWidget = widget.App(self.width,self.height, self)
+
+
+
 
         # Create a menu
         self.mainMenu = self.menuBar()
@@ -34,6 +37,7 @@ class App(QMainWindow):
         # Create a menu action
         self.exitButton = QAction('Exit', self)
         self.specsButton = QAction('Specs', self)
+        self.rateButton = QAction('Update Refresh Rate', self)
         self.emergencyButton = QAction('Emergency Stop', self)
 
         # calls GUI
@@ -59,15 +63,24 @@ class App(QMainWindow):
         self.viewMenu.addAction(self.specsButton)
         self.specsButton.triggered.connect(self.specs)
 
+        self.rateButton.setShortcut('Ctrl+U')
+        self.rateButton.setStatusTip('Update the refresh rate of the data')
+        self.viewMenu.addAction(self.rateButton)
+        self.rateButton.triggered.connect(self.rateUpdate)
+
         self.emergencyButton.setShortcut('Ctrl+E')
         self.emergencyButton.setStatusTip('Go into an emergency stop')
         self.commandMenu.addAction(self.emergencyButton)
-        self.emergencyButton.triggered.connect(self.emergency)
+        self.emergencyButton.triggered.connect(self.myWidget.emergency)
+
+
 
 
         #set our widget as the main box
-        self.setCentralWidget(widget.App(1280,720, self))
+        self.setCentralWidget(self.myWidget)
         self.show()
+
+
 
         """
         # create pop up button button
@@ -76,18 +89,22 @@ class App(QMainWindow):
             print('Accepted.')
         """
 
+        # make QTimer
+        self.qTimer = QTimer()
+        # set interval to 1 s
+        self.qTimer.setInterval(1000)  # 1000 ms = 1 s
+        # start timer
+        self.qTimer.start()
+
+
     def specs(self):
         print("kk")
-        # TODO show any hidden data ? new window?
+        # TODO show any hidden data ? new window
 
-
-    # creates a slot for the button
-    @pyqtSlot()
-    def emergency(self):
-        print('Fault State Engaged')
-        self.status = "FAULT"
-        # TODO engage the fault state on pod
-
+    def rateUpdate(self):
+        refreshRate, okPressed = QInputDialog.getInt(self, "Get integer", "RefreshRate:")
+        if okPressed:
+            self.myWidget.qTimer.setInterval(refreshRate)
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
