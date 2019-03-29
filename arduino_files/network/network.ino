@@ -1,11 +1,10 @@
-
 /*
 Hyperloop Networking Arduino code 2018
 
 This is the main script to run on the networking arduino of the hyperloop pod
 
 1. This Arduino  is connected to 2 other arduinos through UART or Serial port
-    - Arduino 1 passes the 'health state' of the pod, essentially letting the pod know if it is operational based on
+    - Arduino 1 passes the 'state' of the pod, essentially letting the pod know if it is operational based on
       the temperature, pressure, and IMU data is within the safe operational limits required
     - Arduino 2 passes the speed of the pod based on the calculations provided by spaceX, aka 'the flash arduino'
 2. The RP is linked to the Ubiquiti M900 Rocket radio via ethernet cable (10/100Mbps Ethernet port) and sends packets
