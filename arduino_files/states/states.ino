@@ -1,4 +1,3 @@
-#include <Wire.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BNO055.h>
 #include <utility/imumaths.h>
@@ -13,9 +12,12 @@
 int network_led = 11;
 int safe_led = 12;
 int power_led = 13;
-int brake = 3;
-int motor = 2;
+int brake = 10;
+int motor = 9;
+int IMU_reset = 2;
 
+// create a 32 byte packet for transferring data
+byte packet[34];
 
 //index to data rules
 bool brakeState, motorState, canLaunch;
@@ -94,8 +96,9 @@ void setup(void)
 
 void loop(void)
 {
-  delay(100);
-
+  updateIndicators(currentState);
+  updateParameters(currentState);
+  calcTelemetry();
   //  // benchmark speed
   //  // int newTime = millis();
   //  digitalWrite(network_led, LOW);
@@ -107,88 +110,7 @@ void loop(void)
   //  Serial.print(accel);
   //  Serial.println("");
   //  */
-  //  switch (currentState) {
-  //    case MOUNT:
-  //      {
-  //        canLaunch = false;
-  //        //brakes and motors off
-  //        brakeState = true;
-  //        motorState = false;
-  //        //Transitions when button is manually pressed
-  //        //if (mountButtonPressed)
-  //        //currentState = SAFE;
-  //        break;
-  //      }
-  //    case RTL:
-  //      {
-  //        //prepare to launch
-  //        motorState = 1;
-  //        canLaunch = true;
-  //        break;
-  //      }
-  //    case SAFE:
-  //      {
-  //        //brakes applied, motor off
-  //        brakeState = false;
-  //        motorState = false;
-  //        canLaunch = false;
-  //        //if (mountButtonPressed)
-  //        //state = MOUNT;
-  //        break;
-  //      }
-  //    case LAUNCH:
-  //      {
-  //        if (canLaunch) {
-  //          //do launch stuff
-  //          motorState = 1;
-  //          brakeState = 1;
-  //          //set motor speeds/accelerate
-  //        }
-  //        else {
-  //          currentState = FAULT;
-  //          currentFault = RTL_SKIP;
-  //        }
-  //        /*
-  //        if (currentSpeed > someValue) { //or distance says stop
-  //          currentState = COAST;
-  //        }
-  //        */
-  //        break;
-  //      }
-  //    case COAST:
-  //      {
-  //        //do coasting stuff
-  //        //maintain speed
-  //        if (currentSpeed = 0) {
-  //          currentState = CRAWL;
-  //        }
-  //        /*
-  //        if (distanceLeft < someValue) {
-  //          currentState = BRAKE;
-  //        }
-  //        */
-  //        break;
-  //      }
-  //    case BRAKE:
-  //      {
-  //        //do achey breaky stuff
-  //        break;
-  //      }
-  //    case CRAWL:
-  //      {
-  //        //these wounds will never heal
-  //        break;
-  //      }
-  //    case FAULT:
-  //      {
-  //        //oops
-  //        break;
-  //      }
-  //    default:
-  //      {
-  //        currentState = FAULT;
-  //      }
-  //  }
+  //
   //
   //  if (!canLaunch) digitalWrite(safe_led,HIGH);
   //  else digitalWrite(safe_led,LOW);
@@ -201,7 +123,11 @@ void loop(void)
 }
 
 
-
+void calcTelemetry(float values[10])
+{
+  // udpate the given list to include any specs about the speed and distance travelled
+  ;
+}
 
 
 void establishInternal() {
@@ -275,5 +201,177 @@ float* updateSensors(int cycle)
 
 
   return list;
+}
 
+
+void updateIndicators(state temp)
+{
+  switch (temp) {
+    case MOUNT:
+      {
+        canLaunch = false;
+        //brakes and motors off
+        brakeState = true;
+        motorState = false;
+        //Transitions when button is manually pressed
+        //if (mountButtonPressed)
+        //currentState = SAFE;
+        break;
+      }
+    case RTL:
+      {
+        //prepare to launch
+        motorState = 1;
+        canLaunch = true;
+        break;
+      }
+    case SAFE:
+      {
+        //brakes applied, motor off
+        brakeState = false;
+        motorState = false;
+        canLaunch = false;
+        //if (mountButtonPressed)
+        //state = MOUNT;
+        break;
+      }
+    case LAUNCH:
+      {
+        if (canLaunch) {
+          //do launch stuff
+          motorState = 1;
+          brakeState = 1;
+          //set motor speeds/accelerate
+        }
+        else {
+          currentState = FAULT;
+          currentFault = RTL_SKIP;
+        }
+        /*
+          if (currentSpeed > someValue) { //or distance says stop
+          currentState = COAST;
+          }
+        */
+        break;
+      }
+    case COAST:
+      {
+        //do coasting stuff
+        //maintain speed
+        if (currentSpeed = 0) {
+          currentState = CRAWL;
+        }
+        /*
+          if (distanceLeft < someValue) {
+          currentState = BRAKE;
+          }
+        */
+        break;
+      }
+    case BRAKE:
+      {
+        //do achey breaky stuff
+        break;
+      }
+    case CRAWL:
+      {
+        //these wounds will never heal
+        break;
+      }
+    case FAULT:
+      {
+        //oops
+        break;
+      }
+    default:
+      {
+        currentState = FAULT;
+      }
+  }
+}
+
+void updateParameters(state temp)
+{
+  switch (temp) {
+    case MOUNT:
+      {
+        canLaunch = false;
+        //brakes and motors off
+        brakeState = true;
+        motorState = false;
+        //Transitions when button is manually pressed
+        //if (mountButtonPressed)
+        //currentState = SAFE;
+        break;
+      }
+    case RTL:
+      {
+        //prepare to launch
+        motorState = 1;
+        canLaunch = true;
+        break;
+      }
+    case SAFE:
+      {
+        //brakes applied, motor off
+        brakeState = false;
+        motorState = false;
+        canLaunch = false;
+        //if (mountButtonPressed)
+        //state = MOUNT;
+        break;
+      }
+    case LAUNCH:
+      {
+        if (canLaunch) {
+          //do launch stuff
+          motorState = 1;
+          brakeState = 1;
+          //set motor speeds/accelerate
+        }
+        else {
+          currentState = FAULT;
+          currentFault = RTL_SKIP;
+        }
+        /*
+          if (currentSpeed > someValue) { //or distance says stop
+          currentState = COAST;
+          }
+        */
+        break;
+      }
+    case COAST:
+      {
+        //do coasting stuff
+        //maintain speed
+        if (currentSpeed = 0) {
+          currentState = CRAWL;
+        }
+        /*
+          if (distanceLeft < someValue) {
+          currentState = BRAKE;
+          }
+        */
+        break;
+      }
+    case BRAKE:
+      {
+        //do achey breaky stuff
+        break;
+      }
+    case CRAWL:
+      {
+        //these wounds will never heal
+        break;
+      }
+    case FAULT:
+      {
+        //oops
+        break;
+      }
+    default:
+      {
+        currentState = FAULT;
+      }
+  }
 }
