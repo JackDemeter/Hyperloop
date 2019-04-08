@@ -1,5 +1,8 @@
 // Double BNO testing
 
+int reset_IMU = 2;
+
+
 #include <Wire.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BNO055.h>
@@ -8,9 +11,19 @@
 Adafruit_BNO055 bno1 = Adafruit_BNO055(55,0x28);
 Adafruit_BNO055 bno2 = Adafruit_BNO055(55,0x29);
 
- 
+
 void setup(void) 
 {
+  // reset the IMUs to the proper addresses to ensure proper connection
+  pinMode(reset_IMU, OUTPUT);
+  digitalWrite(reset_IMU,HIGH);
+  delay(500);
+  digitalWrite(reset_IMU,LOW);
+  delay(1000);
+  digitalWrite(reset_IMU,HIGH);
+
+
+  
   Serial.begin(9600);
   Serial.println("Orientation Sensor Test"); Serial.println("");
   
@@ -57,6 +70,5 @@ void loop(void)
   Serial.print("\tZ: ");
   Serial.print(event2.orientation.z, 4);
   Serial.println("");
-  
-  delay(100);
+
 }
