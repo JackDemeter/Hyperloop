@@ -60,10 +60,11 @@ void loop() {
   // put your main code here, to run repeatedly:
   //Serial.println(digitalRead(button));
   int packet = Udp.parsePacket();
-  if (packet && Udp.remoteIP()[3] == LAPTOP_IP) 
+  if ((packet || packet == 0)  && Udp.remoteIP()[3] == LAPTOP_IP) 
   {
-    Serial.write(packet-1); // convert the signal to states
+    Serial.write(packet); // convert the signal to states
   }
+  
 }
 
 void establishInternal() {

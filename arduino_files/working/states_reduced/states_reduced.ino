@@ -32,10 +32,11 @@ int RTL_switch_reset = 24;
 
 
 int networkState;
-
+bool initialBrake;
 
 state currentState, prevState;
 unsigned long TSI;
+
 
 void establishInternal() {
   bool connection = false;
@@ -81,7 +82,7 @@ void printState(state s)
       case(state::CRAWL):
       Serial.print("Crawl");
       break; 
-      case(state::FAULT):
+      default:
       Serial.print("Fault");
       break; 
     }
@@ -169,6 +170,7 @@ void loop(void)
   if (Serial3.available() > 0)
     {
       networkState = Serial3.read();
+      if (networkState == 0) Serial.print("Zero sends!");
     }
   
   // TODO check sensor data
@@ -192,12 +194,13 @@ void loop(void)
     switch(currentState)
     {
       case(state::STA):
-      Serial.write("reseting switch");
+      Serial.write("resetting switch");
       digitalWrite(RTL_switch_reset, HIGH);
-
       delay(100);
+      digitalWrite(RTL_switch_reset, LOW);
       break; 
       case(state::RTL):
+      initialBrake = true;
       break; 
       case(state::LAUNCH):
       break; 
@@ -207,8 +210,8 @@ void loop(void)
       break; 
       case(state::CRAWL):
       break; 
-      case(state::FAULT):
-      break; 
+      default:
+      break;
     }
     
     // Record time that state is entered (debugging only)
@@ -221,29 +224,62 @@ void loop(void)
   switch(currentState)
     {
       case(state::STA):
+      {
         if (digitalRead(RTL_switch) && networkState == state::RTL)
         {
           currentState = state::RTL;
         }
-      break; 
+        break; 
+      }
       case(state::RTL):
-      
-      break; 
+      {
+        if (networkState == state::LAUNCH)
+        {
+          currentState = state::LAUNCH;
+        }
+        break; 
+      }
       case(state::LAUNCH):
-      
+      {
+        if (millis() - TSI < 10000) // 10 second launch phase
+        {
+          digitalWrite(safe_led, (millis()/500)%2); //Blink indicating launch is about to occur
+        }
+        else
+        {
+          ; // TODO launch the pod based on TSI and velocity function
+        }
+        if (networkState == state::COAST)currentState = state::COAST;
+        if (networkState == state::BRAKE)currentState = state::BRAKE;
+      }
       break; 
       case(state::COAST):
-      
+      if (millis() - TSI > 10000) // 10 second launch phase
+      {
+        currentState = state::BRAKE;
+      }
       break; 
       case(state::BRAKE):
-      
+      if (!initialBrake)
+      { 
+        //TODO brake and stay halted
+        currentState = state::STA;
+      }
+      if (millis() - TSI > 10000 && initialBrake) // 10 second launch phase
+      {
+        currentState = state::CRAWL;
+        initialBrake = false;
+      }
       break; 
       case(state::CRAWL):
-     
+      if (millis() - TSI > 10000) // 10 second launch phase
+      {
+        currentState = state::BRAKE;
+      }
       break; 
-      case(state::FAULT):
-     
-      break; 
+      
+      default:
+      break;
     }
     // state actions
       // set motor
