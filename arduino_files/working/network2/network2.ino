@@ -65,23 +65,26 @@ void setup() {
   establishInternal();  // send a byte to establish contact until receiver responds
 
   establishExternal();
+  zeroPacket(spaceXPacket, PACKET_SIZE);
+  zeroPacket(telemetry,PACKET_SIZE);
+  
 }
 
 
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  //Serial.println(digitalRead(button));
   int packetCheck = Udp.parsePacket();
   if (packetCheck && Udp.remoteIP()[3] == LAPTOP_IP)
   {
     int packet = Udp.read();
-    Serial.write((byte)packet); // convert the signal to int
-
+    //Serial.write((byte)packet); // convert the signal to a byte
+    Serial.print(packet);
+    Serial.print(packetCheck);
   }
+  /*
   if (Serial.available())
   {
-    int bytes = Serial.readBytesUntil((char)0x4, telemetry, 33);
+    int bytes = Serial.readBytesUntil((char)0x4, telemetry, PACKET_SIZE);
   }
   for (int i = 0; i < 14; i++) 
   {
@@ -90,6 +93,7 @@ void loop() {
   }
   sendUDP(spaceXPacket, PACKET_SIZE, (String)"192.168.0.1", 3000);
   sendUDP(telemetry, PACKET_SIZE, (String)"192.168.0.10", 3000);
+  */
 }
 
 void establishInternal() {
