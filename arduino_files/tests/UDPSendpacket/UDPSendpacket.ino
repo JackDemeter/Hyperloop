@@ -33,7 +33,7 @@ void zeroPacket(byte *packet, int bytes)
 void sendUDP(byte *packet, int packetSize, String IP, int port)
 {
   // send the packet to an address/port of choice
-  Udp.beginPacket(IP, 3000);
+  Udp.beginPacket(&IP, 3000);
   for (int i = 0; i < packetSize; i++) Udp.write(packet[i]);
   Udp.endPacket();
 }
@@ -43,7 +43,7 @@ void updatePacket(byte *packet, int packetSize, byte *updatePacket)
   // update the current packet with data from another packet
   for (int i = 0; i < packetSize; i++)
   {
-    packet[i] = updatePacket[i]
+    packet[i] = updatePacket[i];
   }
 }
 
