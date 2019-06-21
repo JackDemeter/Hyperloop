@@ -1,16 +1,16 @@
 /*
- UDPSendReceiveString:
- This sketch receives UDP message strings, prints them to the serial port
- and sends an "acknowledge" string back to the sender
+  UDPSendReceiveString:
+  This sketch receives UDP message strings, prints them to the serial port
+  and sends an "acknowledge" string back to the sender
 
- A Processing sketch is included at the end of file that can be used to send
- and received messages for testing with a computer.
+  A Processing sketch is included at the end of file that can be used to send
+  and received messages for testing with a computer.
 
- created 21 Aug 2010
- by Michael Margolis
+  created 21 Aug 2010
+  by Michael Margolis
 
- This code is in the public domain.
- */
+  This code is in the public domain.
+*/
 #define PACKET_SIZE 34
 
 #include <Ethernet.h>
@@ -30,17 +30,23 @@ void zeroPacket(byte *packet, int bytes)
   }
 }
 
-void sendUDP(byte *packet, int bytes, String IP, int port)
+void sendUDP(byte *packet, int packetSize, String IP, int port)
 {
-  Udp.beginPacket("192.168.0.10", 3000);
-  for (int i = 0; i < bytes; i++) Udp.write(packet[i]);
+  // send the packet to an address/port of choice
+  Udp.beginPacket(IP, 3000);
+  for (int i = 0; i < packetSize; i++) Udp.write(packet[i]);
   Udp.endPacket();
 }
 
-void readUDP()
+void updatePacket(byte *packet, int packetSize, byte *updatePacket)
 {
-  
+  // update the current packet with data from another packet
+  for (int i = 0; i < packetSize; i++)
+  {
+    packet[i] = updatePacket[i]
+  }
 }
+
 
 byte spaceXPacket[PACKET_SIZE];
 
@@ -59,7 +65,7 @@ void setup() {
   // clean all packets
   zeroPacket(spaceXPacket, PACKET_SIZE);
 
-  
+
   // You can use Ethernet.init(pin) to configure the CS pin
   Ethernet.init(10);  // Most Arduino shields
 
@@ -88,7 +94,8 @@ void setup() {
 }
 
 void loop() {
-  sendUDP(spaceXPacket, PACKET_SIZE, "192.168.0.1", 3000);
   
+  sendUDP(spaceXPacket, PACKET_SIZE, "192.168.0.1", 3000);
+  sendUDP(spaceXPacket, PACKET_SIZE, "192.168.0.10", 3000);
   delay(30);
 }

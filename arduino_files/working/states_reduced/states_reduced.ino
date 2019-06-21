@@ -7,6 +7,8 @@
 #include "enums.c"
 #include "consts.c"
 
+
+
 // Initialize the states
 struct StateDetails
 {
@@ -16,9 +18,10 @@ struct StateDetails
 };
 
 // represent how the arduino should allow motor, brake and led operation for all states (except fault)
-StateDetails States[6] = {{false, true, false},{false, true, true},{true, false, true},{true, false, true},{false, true, true},{true, false, true}};
+StateDetails States[state::STATES] = {{true, false, true},{false, true, false},{false, true, true},{true, false, true},{true, false, true},{false, true, true},{true, false, true}};
 
-
+// Network Data
+char telemetry[PACKET_SIZE];
 
 // pin mapping
 int statePin = 3;
@@ -128,6 +131,7 @@ void setup(void)
 
 
   // initiate default state on start up
+  networkState = state::STA;
   currentState = state::STA;
   prevState = state::STATES;
 
@@ -137,6 +141,8 @@ void setup(void)
   digitalWrite(network_led, LOW);
   // pod is set to not safe to approach, which ensures proper boot up into STA.
   digitalWrite(safe_led, LOW);
+
+  // TODO reset fault switch
 
   delay(1000);
 
@@ -164,13 +170,14 @@ void setup(void)
 void loop(void)
 {
   // CHECK PHASE
+  
   // check network data
   //networkState = int(analogRead(statePin)/42);
   
   if (Serial3.available() > 0)
     {
-      networkState = Serial3.read();
-      if (networkState == 0) Serial.print("Zero sends!");
+      networkState = Serial3.read() - '0'; // convert the character to a integer
+      Serial.print(networkState);
     }
   
   // TODO check sensor data
@@ -178,6 +185,8 @@ void loop(void)
   // ensure pod is within thresholds, otherwise cause a fault and report error
 
   // STATE PHASE
+  if (networkState == state::FAULT) currentState = state::FAULT; // fault pod upon network request
+
   // record start time change
   if (currentState != prevState)
   {
@@ -194,7 +203,7 @@ void loop(void)
     switch(currentState)
     {
       case(state::STA):
-      Serial.write("resetting switch");
+      Serial.println("resetting switch");
       digitalWrite(RTL_switch_reset, HIGH);
       delay(100);
       digitalWrite(RTL_switch_reset, LOW);
@@ -219,7 +228,7 @@ void loop(void)
     Serial.print(" entered at time ");
     Serial.println(TSI);
   }
-    
+  
   // check state (switch case)
   switch(currentState)
     {
@@ -228,6 +237,11 @@ void loop(void)
         if (digitalRead(RTL_switch) && networkState == state::RTL)
         {
           currentState = state::RTL;
+        }
+        if (!digitalRead(RTL_switch))
+        {
+          // reset RTL switch while the switch is off to ensure the pod does not go immediately to RTL when turned on
+          networkState = state::STA;
         }
         break; 
       }
@@ -241,10 +255,16 @@ void loop(void)
       }
       case(state::LAUNCH):
       {
-        if (millis() - TSI < 10000) // 10 second launch phase
+        // 10 second launch phase
+        if (millis() - TSI < 9800) 
         {
           digitalWrite(safe_led, (millis()/500)%2); //Blink indicating launch is about to occur
         }
+        else if (millis() - TSI < 10000)
+        {
+          digitalWrite(safe_led, HIGH); //set high for actual launch
+        }
+        // run motors
         else
         {
           ; // TODO launch the pod based on TSI and velocity function
@@ -279,13 +299,31 @@ void loop(void)
       break; 
       
       default:
+      // fault occurs, use while loop to send data back
+      while (true);
       break;
     }
-    // state actions
-      // set motor
-      // set brakes
-      // set indicator
-      // check for state change
+    
   // NETWORK PHASE
-  // send packet to NA
+  
+  telemetry[0] = TEAM_ID;
+  telemetry[1] = (byte)currentState;
+  // todo add remaining data
+  for (int i = 2; i < PACKET_SIZE; i = i + 4)
+  {
+    //dataToBEBytes(telemetry[i], data?);
+    // temp set all data to 0
+    for (int n = 0; n < 4; n++)
+    {
+      telemetry[i+n] = 0;
+    }
+  }
+
+  // send packet to NA via serial comm
+  for (int i = 0; i < PACKET_SIZE; i++)
+  {
+    Serial3.write((char)telemetry[i]);
+  }
+  Serial3.write((byte)0x4); // send end of transmission byte
+  Serial3.flush();
 }

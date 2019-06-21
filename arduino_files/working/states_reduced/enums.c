@@ -1,12 +1,12 @@
 enum state
 {
+  FAULT,
   STA,
   RTL,
   LAUNCH,
   COAST,
   BRAKE,
   CRAWL,
-  FAULT,
   STATES
 };
 

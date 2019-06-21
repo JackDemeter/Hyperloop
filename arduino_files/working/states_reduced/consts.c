@@ -12,4 +12,5 @@ const float COAST_SPEED_THRESH = 2.8;
 const float LAUNCH_SPEED_THRESH = 55.56;
 
 // Packet data
-const uint8_t TEAM_ID = 11;
+const uint8_t TEAM_ID = 1;
+const int PACKET_SIZE = 34;
