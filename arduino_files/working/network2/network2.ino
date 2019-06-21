@@ -77,9 +77,7 @@ void loop() {
   if (packetCheck && Udp.remoteIP()[3] == LAPTOP_IP)
   {
     int packet = Udp.read();
-    //Serial.write((byte)packet); // convert the signal to a byte
-    Serial.print(packet);
-    Serial.print(packetCheck);
+    Serial.write((byte)packet); // convert the signal to a byte
   }
   /*
   if (Serial.available())
