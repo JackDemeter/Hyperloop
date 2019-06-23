@@ -46,10 +46,10 @@ void updatePacket(byte *packet, int packetSize, byte *updatePacket)
 byte mac[] = {
   0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xEE
 };
-IPAddress ip(192, 168, 8, 20);
+const IPAddress ip(192, 168, 8, 20);
 const IPAddress server(192, 168, 8, 1);
 const IPAddress computer(192, 168, 8, 10);
-unsigned int localPort = 3000;      // local port to listen on
+const unsigned int localPort = 3000;      // local port to listen on
 
 void setup() {
 

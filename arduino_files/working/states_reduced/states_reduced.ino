@@ -18,7 +18,7 @@ struct StateDetails
 };
 
 // represent how the arduino should allow motor, brake and led operation for all states (except fault)
-StateDetails States[state::STATES] = {{true, false, true},{false, true, false},{false, true, true},{true, false, true},{true, false, true},{false, true, true},{true, false, true}};
+StateDetails States[state::STATES] = {{true, false, true}, {false, true, false}, {false, true, true}, {true, false, true}, {true, false, true}, {false, true, true}, {true, false, true}};
 
 // Network Data
 char telemetry[PACKET_SIZE];
@@ -65,30 +65,30 @@ void establishInternal() {
 
 void printState(state s)
 {
-  switch(s)
-    {
-      case(state::STA):
+  switch (s)
+  {
+    case (state::STA):
       Serial.print("STA");
-      break; 
-      case(state::RTL):
+      break;
+    case (state::RTL):
       Serial.print("RTL");
-      break; 
-      case(state::LAUNCH):
+      break;
+    case (state::LAUNCH):
       Serial.print("Launch");
-      break; 
-      case(state::COAST):
+      break;
+    case (state::COAST):
       Serial.print("Coast");
-      break; 
-      case(state::BRAKE):
+      break;
+    case (state::BRAKE):
       Serial.print("Brake");
-      break; 
-      case(state::CRAWL):
+      break;
+    case (state::CRAWL):
       Serial.print("Crawl");
-      break; 
-      default:
+      break;
+    default:
       Serial.print("Fault");
-      break; 
-    }
+      break;
+  }
 }
 
 void establishExternal() {
@@ -158,7 +158,7 @@ void setup(void)
 
   establishExternal();
   // Connections are set and the network is now properly working.
-  
+
   digitalWrite(network_led, HIGH);
 }
 
@@ -170,16 +170,16 @@ void setup(void)
 void loop(void)
 {
   // CHECK PHASE
-  
+
   // check network data
   //networkState = int(analogRead(statePin)/42);
-  
+
   if (Serial3.available() > 0)
-    {
-      networkState = Serial3.read() - '0'; // convert the character to a integer
-      Serial.print(networkState);
-    }
-  
+  {
+    networkState = (int)Serial3.read(); // convert the character to a integer
+    Serial.print(networkState);
+  }
+
   // TODO check sensor data
   // TODO calculations
   // ensure pod is within thresholds, otherwise cause a fault and report error
@@ -192,7 +192,7 @@ void loop(void)
   {
     // make if statement one shot
     prevState = currentState;
-    // reset time state initialized 
+    // reset time state initialized
     TSI = millis();
     // set related outputs
     digitalWrite(brake, !States[currentState].brake);
@@ -200,39 +200,39 @@ void loop(void)
     digitalWrite(safe_led, States[currentState].led_indicator);
 
     // one shot per case
-    switch(currentState)
+    switch (currentState)
     {
-      case(state::STA):
-      Serial.println("resetting switch");
-      digitalWrite(RTL_switch_reset, HIGH);
-      delay(100);
-      digitalWrite(RTL_switch_reset, LOW);
-      break; 
-      case(state::RTL):
-      initialBrake = true;
-      break; 
-      case(state::LAUNCH):
-      break; 
-      case(state::COAST):
-      break; 
-      case(state::BRAKE):
-      break; 
-      case(state::CRAWL):
-      break; 
+      case (state::STA):
+        Serial.println("resetting switch");
+        digitalWrite(RTL_switch_reset, HIGH);
+        delay(100);
+        digitalWrite(RTL_switch_reset, LOW);
+        break;
+      case (state::RTL):
+        initialBrake = true;
+        break;
+      case (state::LAUNCH):
+        break;
+      case (state::COAST):
+        break;
+      case (state::BRAKE):
+        break;
+      case (state::CRAWL):
+        break;
       default:
-      break;
+        break;
     }
-    
+
     // Record time that state is entered (debugging only)
     printState(currentState);
     Serial.print(" entered at time ");
     Serial.println(TSI);
   }
-  
+
   // check state (switch case)
-  switch(currentState)
-    {
-      case(state::STA):
+  switch (currentState)
+  {
+    case (state::STA):
       {
         if (digitalRead(RTL_switch) && networkState == state::RTL)
         {
@@ -243,22 +243,22 @@ void loop(void)
           // reset RTL switch while the switch is off to ensure the pod does not go immediately to RTL when turned on
           networkState = state::STA;
         }
-        break; 
+        break;
       }
-      case(state::RTL):
+    case (state::RTL):
       {
         if (networkState == state::LAUNCH)
         {
           currentState = state::LAUNCH;
         }
-        break; 
+        break;
       }
-      case(state::LAUNCH):
+    case (state::LAUNCH):
       {
         // 10 second launch phase
-        if (millis() - TSI < 9800) 
+        if (millis() - TSI < 9800)
         {
-          digitalWrite(safe_led, (millis()/500)%2); //Blink indicating launch is about to occur
+          digitalWrite(safe_led, (millis() / 500) % 2); //Blink indicating launch is about to occur
         }
         else if (millis() - TSI < 10000)
         {
@@ -272,16 +272,16 @@ void loop(void)
         if (networkState == state::COAST)currentState = state::COAST;
         if (networkState == state::BRAKE)currentState = state::BRAKE;
       }
-      break; 
-      case(state::COAST):
+      break;
+    case (state::COAST):
       if (millis() - TSI > 10000) // 10 second launch phase
       {
         currentState = state::BRAKE;
       }
-      break; 
-      case(state::BRAKE):
+      break;
+    case (state::BRAKE):
       if (!initialBrake)
-      { 
+      {
         //TODO brake and stay halted
         currentState = state::STA;
       }
@@ -290,22 +290,24 @@ void loop(void)
         currentState = state::CRAWL;
         initialBrake = false;
       }
-      break; 
-      case(state::CRAWL):
+      break;
+    case (state::CRAWL):
       if (millis() - TSI > 10000) // 10 second launch phase
       {
         currentState = state::BRAKE;
       }
-      break; 
-      
-      default:
-      // fault occurs, use while loop to send data back
-      while (true);
       break;
-    }
-    
+
+    default:
+      // fault occurs, use while loop to send data back
+      digitalWrite(brake, !States[currentState].brake);
+      digitalWrite(motor, States[currentState].motor);
+      digitalWrite(safe_led, States[currentState].led_indicator);
+      break;
+  }
+
   // NETWORK PHASE
-  
+
   telemetry[0] = TEAM_ID;
   telemetry[1] = (byte)currentState;
   // todo add remaining data
@@ -315,7 +317,7 @@ void loop(void)
     // temp set all data to 0
     for (int n = 0; n < 4; n++)
     {
-      telemetry[i+n] = 0;
+      telemetry[i + n] = 0;
     }
   }
 
@@ -323,6 +325,7 @@ void loop(void)
   for (int i = 0; i < PACKET_SIZE; i++)
   {
     Serial3.write((char)telemetry[i]);
+    Serial.write(telemetry[i]);
   }
   Serial3.write((byte)0x4); // send end of transmission byte
   Serial3.flush();
