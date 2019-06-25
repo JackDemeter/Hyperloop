@@ -10,6 +10,8 @@
  */
 
 
+// throttle goes to 
+
 // the potentiometer plugs attaches here
 int pot = A0;
 // the pwm to the motorcontroller connects here
@@ -27,6 +29,8 @@ void loop() {
   // put your main code here, to run repeatedly:
   
   int value = analogRead(pot);
-  Serial.println(value/4);
-  analogWrite(pwm, value/4);
+  if (value >= 255*2) value = 255*2;
+  if (value <= 10*2) value = 10*2;
+  Serial.println(value/2);
+  analogWrite(pwm, value/2);
 }
