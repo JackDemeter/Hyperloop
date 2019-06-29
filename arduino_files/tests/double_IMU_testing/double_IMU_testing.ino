@@ -58,7 +58,7 @@ void loop(void)
   
   /* Display the floating point data */
   Serial.print("X: ");
-  Serial.print(event1.orientation.x, 4);
+  Serial.print(event1.x, 4);
   Serial.print("\tY: ");
   Serial.print(event1.orientation.y, 4);
   Serial.print("\tZ: ");
