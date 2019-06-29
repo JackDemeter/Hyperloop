@@ -1,8 +1,8 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QMenuBar, QStatusBar, QPushButton, QMessageBox, QAction, QTableView, \
     QTableWidget, QTableWidgetItem, QVBoxLayout, QSizePolicy, QProgressBar, QLabel, QVBoxLayout, QHBoxLayout, \
-    QLayout, QGridLayout, QInputDialog
-from PyQt5.QtGui import QIcon, QPixmap
+    QLayout, QGridLayout, QInputDialog, QGroupBox
+from PyQt5.QtGui import QIcon, QPixmap,QColor
 from PyQt5.QtCore import pyqtSlot, QTimer
 
 class App(QWidget):
@@ -21,23 +21,46 @@ class App(QWidget):
         # make QTimer
         self.qTimer = QTimer()
 
-        self.tableWidget = QTableWidget(4, 2)
-        # self.layout = QVBoxLayout(self)
-        self.layout = QGridLayout(self)
+        # make table widget
+        self.tableWidget = QTableWidget(8, 4)
+        self.tableWidget.horizontalHeader().setVisible(False)
+        self.tableWidget.verticalHeader().setVisible(False)
+
+        # layout
+        self.layout = QVBoxLayout(self)         # Main Layout
+        self.sublayout = QHBoxLayout(self)      # Sub-Layout for the picture and the table
+        self.buttonlayout = QHBoxLayout(self)   # Sub-Layout for the buttons
+
+        self.layout.addStretch()
+        
+        
+        self.sublayout.addStretch(1)
+        self.sublayout.setSpacing(150)
+
+        # groupbox
+        
+        self.tableBox = QGroupBox()
+        self.tableBox.setLayout(self.sublayout)
+        self.layout.addWidget(self.tableBox)
+
+        self.buttonBox = QGroupBox()
+        self.buttonBox.setLayout(self.buttonlayout)
+        self.layout.addWidget(self.buttonBox)
+
         # calls GUI
         self.launchString = "Ready to Launch"
         self.isLaunch = False
-
         self.Statelabel = QLabel(self)
         self.mountbutton = QPushButton("Mount", self)
 
-        # add images
-        self.titleLogo = QLabel()
+        # LOGO
+        self.titleLogo = QLabel(self)
         pixmap = QPixmap(r'images\QH_logo.png')
-        pixmap = pixmap.scaled(400, 100)
+        pixmap = pixmap.scaled(251, 51)
         self.titleLogo.setPixmap(pixmap)
-        self.titleLogo.resize(300, 200)
-        self.layout.addWidget(self.titleLogo, 0, 0)
+        self.titleLogo.resize(300, 400)
+        self.titleLogo.move(25,-150)
+        
 
         self.initUI()
 
@@ -45,76 +68,129 @@ class App(QWidget):
         self.setWindowTitle(self.title)
         self.setFixedSize(self.width, self.height)
 
-
-
         self.sample = QLabel()
-        pixmap = QPixmap(r'images\example.png')
-        pixmap = pixmap.scaled(500, 600)
+        pixmap = QPixmap(r'images\pod.png')
+        pixmap = pixmap.scaled(750, 394)
         self.sample.setPixmap(pixmap)
-        self.sample.resize(500, 400)
-        self.layout.addWidget(self.sample,1,1)
+        self.sample.setFixedSize(750, 394)
+        self.sublayout.addWidget(self.sample)
+        #self.sublayout.addStretch(1)
+        self.sublayout.setSpacing(100)
 
 
-        # adds table widget
-        self.tableWidget.setItem(0, 0, QTableWidgetItem("Cell (1,1)"))
-        self.tableWidget.setItem(0, 1, QTableWidgetItem("Cell (1,2)"))
-        self.tableWidget.setItem(1, 0, QTableWidgetItem("Cell (2,1)"))
-        self.tableWidget.setItem(1, 1, QTableWidgetItem("Cell (2,2)"))
-        self.tableWidget.setItem(2, 0, QTableWidgetItem("Cell (3,1)"))
-        self.tableWidget.setItem(2, 1, QTableWidgetItem("Cell (3,2)"))
-        self.tableWidget.setItem(3, 0, QTableWidgetItem("Cell (4,1)"))
-        self.tableWidget.setItem(3, 1, QTableWidgetItem("Cell (4,2)"))
-        self.tableWidget.setFixedSize(330,500)
-        self.layout.addWidget(self.tableWidget,1,0)
+        # TABLE
+
+        self.tableWidget.setItem(0, 0, QTableWidgetItem(""))
+        self.tableWidget.setItem(0, 1, QTableWidgetItem("Min"))
+        self.tableWidget.setItem(0, 2, QTableWidgetItem("Value"))
+        self.tableWidget.setItem(0, 3, QTableWidgetItem("Max"))
+        self.tableWidget.item(0,0).setBackground(QColor(0,0,0))
+
+        self.tableWidget.setItem(1, 0, QTableWidgetItem("Battery Temperature"))
+        self.tableWidget.setItem(1, 1, QTableWidgetItem("0"))
+        self.tableWidget.setItem(1, 2, QTableWidgetItem("Cell (1,2)"))
+        self.tableWidget.setItem(1, 3, QTableWidgetItem("60"))
+        self.tableWidget.item(1,2).setBackground(QColor(0,255,0))
+        
+        self.tableWidget.setItem(2, 0, QTableWidgetItem("Motor Temperature"))
+        self.tableWidget.setItem(2, 1, QTableWidgetItem("-20"))
+        self.tableWidget.setItem(2, 2, QTableWidgetItem(str(0)))
+        self.tableWidget.setItem(2, 3, QTableWidgetItem("180"))
+        self.tableWidget.item(2,2).setBackground(QColor(255,0,0))
+
+        self.tableWidget.setItem(3, 0, QTableWidgetItem("Pod Temperature"))
+        self.tableWidget.setItem(3, 1, QTableWidgetItem("-20"))
+        self.tableWidget.setItem(3, 2, QTableWidgetItem(str(0)))
+        self.tableWidget.setItem(3, 3, QTableWidgetItem("60"))
+        self.tableWidget.item(3,2).setBackground(QColor(255,0,0))        
+
+        self.tableWidget.setItem(4, 0, QTableWidgetItem("Battery Voltage (Motor)"))
+        self.tableWidget.setItem(4, 1, QTableWidgetItem("40"))
+        self.tableWidget.setItem(4, 2, QTableWidgetItem(str(0)))
+        self.tableWidget.setItem(4, 3, QTableWidgetItem("55"))
+        self.tableWidget.item(4,2).setBackground(QColor(255,0,0))
+
+        self.tableWidget.setItem(5, 0, QTableWidgetItem("Battery Voltage (Electronics)"))
+        self.tableWidget.setItem(5, 1, QTableWidgetItem("20"))
+        self.tableWidget.setItem(5, 2, QTableWidgetItem(str(0)))
+        self.tableWidget.setItem(5, 3, QTableWidgetItem("27.5"))
+        self.tableWidget.item(5,2).setBackground(QColor(255,0,0))
+
+        self.tableWidget.setItem(6, 0, QTableWidgetItem("Pressure Vessel Pressure"))
+        self.tableWidget.setItem(6, 1, QTableWidgetItem("10"))
+        self.tableWidget.setItem(6, 2, QTableWidgetItem(str(0)))
+        self.tableWidget.setItem(6, 3, QTableWidgetItem("20"))
+        self.tableWidget.item(6,2).setBackground(QColor(255,0,0))
+
+        self.tableWidget.setItem(7, 0, QTableWidgetItem("Break Air Tank Pressure"))
+        self.tableWidget.setItem(7, 1, QTableWidgetItem("85")) 
+        self.tableWidget.setItem(7, 2, QTableWidgetItem(str(0)))
+        self.tableWidget.setItem(7, 3, QTableWidgetItem("109"))
+        self.tableWidget.item(7,2).setBackground(QColor(255,0,0))
+
+
+        self.tableWidget.setColumnWidth(0,200)
+        self.tableWidget.setFixedSize(800,500)
+        self.sublayout.addWidget(self.tableWidget)
+        self.sublayout.addStretch(0)
+        self.sublayout.addSpacing(50)
+        #self.layout.addLayout(self.sublayout)
 
 
 
-
-        # add label for state
+        # STATE LABEL
 
         self.Statelabel.setText("State: {}".format(self.state))
-        self.Statelabel.move(800, 00)
+        self.Statelabel.move(800, -10)
         self.Statelabel.setStyleSheet("color:black; font-size:40px")
         self.Statelabel.resize(450, 70)
 
-        # create a button
+        #EMERGENCY STOP BUTTON
+
         self.Emergbutton = QPushButton('Emergency\nStop', self)
         self.Emergbutton.setStyleSheet("color:black")
         self.Emergbutton.setToolTip('This button engages the pods fault state')
-        self.Emergbutton.move(self.width - 200, 0)
+        #self.Emergbutton.move(self.width - 200, 0)
+        self.buttonlayout.addWidget(self.Emergbutton)
         # colour/style button
         self.Emergbutton.setStyleSheet("background-color:rgb(230,80,80); color:black; font-size:25px")
-        self.Emergbutton.resize(200,70)
+        self.Emergbutton.setFixedSize(200,70)
         # link button to pyqtslot
         self.Emergbutton.clicked.connect(self.emergency)
 
-        # create a button
+        #READY TO LAUNCH BUTTON
         self.Launchbutton = QPushButton(self.launchString, self)
         self.Launchbutton.setStyleSheet("color:black")
         self.Launchbutton.setToolTip('This button engages the pods fault state')
-        self.Launchbutton.move(self.width - 175, 140)
+        #self.Launchbutton.move(self.width - 175, 140)
+        self.buttonlayout.addWidget(self.Launchbutton)
         # colour/style button
         self.Launchbutton.setStyleSheet("background-color:rgb(200,200,200); color:black; font-size:16px")
-        self.Launchbutton.resize(150, 40)
+        self.Launchbutton.setFixedSize(150, 40)
         # link button to pyqtslot
         self.Launchbutton.clicked.connect(self.launch)
 
         # todo make this a function call
         if self.isLaunch != True:
-            # create a button
+            #SAFE TO APPROACH BUTTON
             self.mountbutton.setText("Safe to Approach")
             self.mountbutton.setToolTip('This button sets the pod into a mounting state')
-            self.mountbutton.move(self.width - 175, 70)
+            # self.mountbutton.move(self.width - 175, 70)
+            self.buttonlayout.addWidget(self.mountbutton)
             # colour/style button
             self.mountbutton.setStyleSheet("background-color:rgb(200,200,200); color:black; font-size:16px")
-            self.mountbutton.resize(150, 40)
+            self.mountbutton.setFixedSize(150, 40)
             # link button to pyqtslot
             self.mountbutton.clicked.connect(self.mount)
 
+        
+        #self.layout.addLayout(self.buttonlayout)
+        self.layout.addStretch()
+        self.layout.addSpacing(0)
 
-        # create a progress bar
+        # PROGRESS BAR
         progress = QProgressBar(self)
-        progress.setGeometry(450, 100, 800, 10)
+        progress.setGeometry(600, 65, 800, 25)
         progress.setValue(50)
 
         # set interval to 1 s
@@ -174,3 +250,4 @@ class App(QWidget):
     def on_click(self):
         print('Fault State Engaged')
         # TODO engage the fault state on pod
+

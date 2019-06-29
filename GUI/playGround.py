@@ -26,8 +26,6 @@ class App(QMainWindow):
         self.myWidget = widget.App(self.width,self.height, self)
 
 
-
-
         # Create a menu
         self.mainMenu = self.menuBar()
         self.commandMenu = self.mainMenu.addMenu('Commands')
