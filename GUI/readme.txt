@@ -1,4 +1,4 @@
-## Hyperloop GUI ##
+# Hyperloop GUI #
 
 ### Directory ###
 Queen's University Hyperloop team 2019 software structure
