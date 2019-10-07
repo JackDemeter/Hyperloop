@@ -21,13 +21,13 @@ The arduino will monitor these sensors, as such it is important to include them 
 3 IMUs (Adafruit BMO055)
 2 Laser sensor of choice with Class 1 Laser rating 
 1 0-100 psi transducer (Adafruit MPRLS)
-17 Negative Temperature Coefficient (NTC) thermistor 
-	- one per battery(2), 
-	- one per motor temperature sensors(4)
-	- each axel temp(2)
-	- internal compartment(1)
-	- chassis(4)
-	- brake calipers(4) 
+17 Negative Temperature Coefficient (NTC) thermistor \n
+	- one per battery(2), \n
+	- one per motor temperature sensors(4) \n
+	- each axel temp(2) \n
+	- internal compartment(1) \n
+	- chassis(4) \n
+	- brake calipers(4) \n
 
 to ensure that the pod is within safe operating parameters.
 
