@@ -7,7 +7,7 @@ Queen's University Hyperloop team 2019 software structure
 contains the main GUI, to be run on the laptop
 #### Requirements.txt ####
 contains all of the libraries used for this project, once you have created a virtual environment, download this packages with:
-*pip install -h "requirements.txt"*
+*pip install -r "requirements.txt"*
 #### UDP sending ####
 Test code to send the UDP data, works with UDPrecieving and the Arduino network file
 #### UDP recieving ####
