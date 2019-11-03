@@ -1,3 +1,5 @@
+#include <stdbool.h>
+
 enum state
 {
   FAULT,

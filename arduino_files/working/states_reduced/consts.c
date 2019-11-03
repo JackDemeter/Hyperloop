@@ -1,4 +1,7 @@
+#include <stdbool.h>
 #include <stdint.h>
+
+
 
 // preset calculated values for when the pod should engage certain aspects
 // must be flashed each time to change
@@ -14,3 +17,7 @@ const float LAUNCH_SPEED_THRESH = 55.56;
 // Packet data
 const uint8_t TEAM_ID = 1;
 const int PACKET_SIZE = 34;
+
+// adjust these values for pressure calibration
+const float PRESSURE_SLOPE = 0.126;
+const float BIAS = -0.5 * 1024 / 5;
