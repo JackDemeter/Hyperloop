@@ -2,7 +2,7 @@
 #include <stdbool.h>
 
 #include "enums.c"
-#include "states_reduced.h"
+#include "states.h"
 #include "consts.c"
 
 struct StateDetails

@@ -6,9 +6,6 @@
 
 int bit1 = 22;
 int bit2 = 23;
-
-
-
 int bit4 = 24;
 int temp = A0;
 

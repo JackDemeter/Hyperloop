@@ -5,8 +5,19 @@
 */
 
 // adjust these values for calibration
-const float SLOPE = 0.126;
-const float BIAS = -0.5 * 1024 / 5;
+
+
+//BIAS 1 for 1/8 inch
+//const float SLOPE = 0.125;
+//const float BIAS = -1.078 * 1024 / 5;
+//const float BIAS = -0.5 * 1024 / 5;
+
+//BIAS 2/3 for 1/4 inch 
+const float SLOPE = 0.188;
+const float BIAS = -0.49 * 1024 / 5;
+
+//BIAS 4 for 1/8 inch
+//const float BIAS = -1.078 * 1024 / 5;
 
 int transducer = A0;
 
