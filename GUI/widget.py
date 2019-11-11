@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import QApplication, QWidget, QMenuBar, QStatusBar, QPushBu
     QLayout, QGridLayout, QInputDialog, QGroupBox
 from PyQt5.QtGui import QIcon, QPixmap,QColor
 from PyQt5.QtCore import pyqtSlot, QTimer
+import UDPsending
 
 class App(QWidget):
     def __init__(self, width, height, mainWindow):
@@ -219,13 +220,14 @@ class App(QWidget):
             # TODO reengage the brakes
             print('Mounting complete')
             self.Statelabel.setText("State: Safe to Approach")
-
+            UDPsending.send_via_udp(1)
 
     # creates a slot for the button
     @pyqtSlot()
     def emergency(self):
         print('Fault State Engaged')
         self.state = "Fault"
+        UDPsending.send_via_udp(0)
         # TODO engage the fault state on pod
 
     # creates a slot for the button
@@ -233,6 +235,7 @@ class App(QWidget):
     def readyLaunch(self):
         print('Prepared for launch engaged')
         self.state = "Ready to Launch"
+        UDPsending.send_via_udp(1)
         self.launch = True
         # TODO engage launch of pod
 
@@ -241,9 +244,9 @@ class App(QWidget):
     def launch(self):
         print('Launch engaged')
         self.state = "Launch"
+        UDPsending.send_via_udp(2)
         self.launch = True
         # TODO engage launch of pod
-
 
     # creates a slot for the button
     @pyqtSlot()

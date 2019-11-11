@@ -43,7 +43,7 @@ class App(QMainWindow):
 
     def initUI(self):
         self.setWindowTitle(self.title)
-        self.setFixedSize(self.width, self.height)
+        self.setGeometry(self.left, self.top, self.width, self.height)
         self.setWindowIcon(QIcon(os.getcwd() + r'\images\QH_icon.png'))
 
         # Create a status bar at the bottom of the page

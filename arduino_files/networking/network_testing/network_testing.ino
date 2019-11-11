@@ -1,172 +1,160 @@
-/*
-Hyperloop Networking Arduino code 2018
-
-This is the main script to run on the networking arduino of the hyperloop pod
-
-1. This Arduino  is connected to 2 other arduinos through UART or Serial port
-    - Arduino 1 passes the 'state' of the pod, essentially letting the pod know if it is operational based on
-      the temperature, pressure, and IMU data is within the safe operational limits required
-    - Arduino 2 passes the speed of the pod based on the calculations provided by spaceX, aka 'the flash arduino'
-2. The RP is linked to the Ubiquiti M900 Rocket radio via ethernet cable (10/100Mbps Ethernet port) and sends packets
-required by the spaceX team, read the 2019 competition details for more information (probably faster than reading this
-code) this program will likely include the 'mock-receiver.py' python file provided by SpaceX
-3. "This is gonna be fun" -Jack before writing the code
-
-Created by Jack Demeter 2018
-*/
-
-//     LIBRARIES       //
-
-// Libraries for ethernet shield 
-#include <Dhcp.h>
-#include <Dns.h>
 #include <Ethernet.h>
-#include <EthernetClient.h>
-#include <EthernetServer.h>
 #include <EthernetUdp.h>
+// An EthernetUDP instance to let us send and receive packets over UDP
+EthernetUDP Udp;
 
-// master slave library
-#include <Wire.h> 
+// network setup
+const int LAPTOP_IP = 10;
+const int PACKET_SIZE = 34;
 
+const IPAddress ip(192, 168, 8, 20);
+const IPAddress server(192, 168, 8, 2);
+const IPAddress computer(192, 168, 8, 10);
+const unsigned int localPort = 3000;      // local port to listen on
 
-//     VARIABLES       //
+byte spaceXPacket[PACKET_SIZE]; //packet to send spaceX
+byte telemetry[PACKET_SIZE];    //packet to send to computer
 
-pinMode(2, OUTPUT); // PLACE LEDs ON PIN 2 (RGB STRIP??)
-
-
-
-enum state 
-{
-  FAULT,
-  SAFE,
-  RTL,  //Ready To Launch
-  LAUNCH,
-  COAST,
-  BRAKE,
-  CRAWL,
-  NUM_STATE
+// Enter a MAC address and IP address for your controller below.
+// The IP address will be dependent on your local network:
+byte mac[] = {
+  0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED
 };
 
-enum crit_state 
+/*  -------------------------------------------------------------------------
+    FUNCTIONS
+    -------------------------------------------------------------------------
+*/
+void zeroPacket(byte *packet, int bytes)
 {
-  CRIT_FAULT,
-  CRIT_SAFE,
-  CRIT_ACTION
-};
-
-
-
-
-
-//     FUNCTIONS       //
-
-/*
- * STATE DATA:
- * 
- * 0: Fault – When the Pod is in any fault state. 
- * 1: Safe to Approach – Any state where the Pod is on, not moving and safe for team members and SpaceX volunteers to approach. The Pod should go back to transmitting this state at the end of the run. 
- * 2: Ready to Launch – Any state where the Pod is ready to launch but not accelerating. 
- * 3: Launching – Any state where the Pod is commanding propulsion with the goal of achieving the highest velocity for the run. 
- * 4: Coasting – Any state where the Pod is moving but not accelerating or decelerating. 
- * 5: Braking – Any state where the Pod is decelerating using its braking mechanism, a Pod can stay in this state after having come to a full stop but should eventually go to Safe to approach. 
- * 6: Crawling – Any state where the Pod is commanding propulsion with the goal of moving the Pod while not achieving the highest velocity for the run.
- * 
- */
-
-// TODO create state functions
-
-void fault(init_state)
-{
-  // mark the state the pod was in when the error started
-  state current_state = init_state;
-  while (current_state == state):
+  // sets all packets to zero
+  for (int i = 0; i < bytes; i++)
   {
-    // TODO report data
-    
-    // TODO convert ethernet signal such that any change in the current signal causes the pod to shut off.
-    current_state = get_state();
+    packet[i] = 0;
   }
-  exit();
-  // Doesn't allow access to any other states
 }
 
-
-void safe()
+void sendUDP(byte *packet, int packetSize, IPAddress IP, int port)
 {
-  state current_state = get_state();
-  if (state == RTL):
+  // send the packet to an address/port of choice
+  Udp.beginPacket(IP, port);
+  for (int i = 0; i < packetSize; i++)
   {
-    digitalWrite()
+    Udp.write(int(packet[i]));
+    // Serial.print(int(packet[i])); // debugging
   }
-  // Nothing happens in this state however it allows for the state to be changed to RTL after time period
-  // TODO report data
-  
-  // TODO convert ethernet signal such that any change in the current signal causes the pod to shut off.
-  
-  // Doesn't allow access to any other states
+  // Serial.println(); // debugging
+
+  Udp.endPacket();
 }
 
-// TODO, throw error if any issue comes up, catch function
-
-// TODO get_state() get ethernet state data from the base
-
-// TODO create event log (stretch goal)
-
-
-/* 
- *  setup requirements:   
- *  - a port for communicating between the state arduino and the networking arduino, where networking arduino is slave in an I2C communication    
- *  - an analog input to the motor controller (save 3 incase needed)     
- *  - set up 2 'ethernet shield 2's, 1 for radio output, one for flash input
- *  - missing anything? brb
- */
-
-void setup():
+void updatePacket(byte *packet, int packetSize, byte *updatePacket)
 {
-  
+  // update the current packet with data from another packet
+  for (int i = 0; i < packetSize; i++)
+  {
+    packet[i] = updatePacket[i];
+  }
 }
-    
 
-/*
- * loop requirements:    
- * - Determine the state to output based on the data recieved from the state arduino and network input     
- * - give analog value based on a given value     
- * - safety button to allow the pod to go into a launch state
- * 
- */
+void establishInternal() {
+  int requestNumber = 0;
+  char receivedChar = NULL;
 
-void loop():
-    // allows for over ethernet communication to the pod
-    crit_state = read_state()
-    state = det_state(crit_state, command)
-    if state == 0:
-        // remote deactivation of the pod, also occurs if no data is heard/ether is lost
-        active = False
+  // Request the state arduino to send a signal, continue to request signal until the 'A' signal is recieved.
+  while (receivedChar != 'B') {
 
-    else if state == 1:
-        // safe to approach: motors cannot be engaged
-        break
-        // TODO listen for a case when the next state is stepped into
-    else if state == 2:
-        // ready to launch: can only reach this state from state 2
-        break
-    else if state == 3:
-        // launch: ZOOM
-        break
-    else if state == 4:
-        // coast
-        break
-    else if state == 5:
-        // brake until a stop is reached
-        breaks
+    Serial.write('A');
+    if (Serial.available())
+    {
+      receivedChar = Serial.read();
+    }
+
+    delay(500);
+    requestNumber++;
+  }
+  digitalWrite(13, HIGH);
+}
 
 
+void establishExternal() {
+  // TODO, replace this with actual network data
+  // if there's data available, read a packet
+  int packet_size = Udp.parsePacket();
+  int packet = Udp.read();
+  bool connection = false;
+  while (!connection)
+  {
+    if (packet_size == 1 && Udp.remoteIP()[3] == LAPTOP_IP)
+    {
+      // A connection has been established with the computer
+      /*
+        Serial.print("From ");
+        IPAddress remote = Udp.remoteIP();
+        for (int i=0; i < 4; i++) {
+        Serial.print(remote[i], DEC);
+        if (i < 3) {
+          Serial.print(".");
+        }
+        }
+        Serial.print(", port ");
+        Serial.println(Udp.remotePort());
+      */
+      Serial.write('C');
+      connection = true;
+    }
+    packet_size = Udp.parsePacket();
+  }
+}
 
-// Engage listen mode
-while (True):
-    // switches the pod to no longer be able to receive commands however still logs and reports data over ethernet until
-    // pod manually shut off
-    // TODO consider implementing a remote shutoff
-    conv_to_packet()
+
+/*  -------------------------------------------------------------------------
+    MAIN
+    -------------------------------------------------------------------------
+*/
+void setup() {
+  // You can use Ethernet.init(pin) to configure the CS pin
+  Ethernet.init(10);  // Most Arduino shields
+
+  // start the Ethernet
+  Ethernet.begin(mac, ip);
+  // prevent sending data to both IPs from causing effecting message frequency
+  Ethernet.setRetransmissionCount(1);
+  Ethernet.setRetransmissionTimeout(10);
+
+  Serial.begin(115200);
+  while (!Serial); // wait for serial port to connect. Needed for native USB port only
+
+  // Check for Ethernet hardware present
+  if (Ethernet.hardwareStatus() == EthernetNoHardware) {
+    //Serial.println("Ethernet shield was not found.");
+    while (true) {
+      delay(1); // do nothing, no point running without Ethernet hardware
+    }
+  }
+
+  // start UDP
+  Udp.begin(localPort);
+
+  //establishInternal();  // send a byte to establish contact until receiver responds
+  establishExternal();
+
+  zeroPacket(spaceXPacket, PACKET_SIZE);
+  zeroPacket(telemetry, PACKET_SIZE);
+
+}
 
 
+
+void loop() {
+  
+  char packet[14];
+  char packet_data;
+  int packet_size = Udp.parsePacket();
+  if (packet_size != 0) {
+    packet_data = Udp.read();
+    packet[1] = packet_data;
+  }
+  sendUDP(packet, PACKET_SIZE, server, 3000);
+  sendUDP(packet, PACKET_SIZE, computer, 3000);
+}
