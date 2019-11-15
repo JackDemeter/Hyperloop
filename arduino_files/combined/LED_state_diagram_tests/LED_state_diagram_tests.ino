@@ -92,6 +92,12 @@ void setup(void)
     ; // wait for serial port to connect. Needed for native USB port only
   }
   // TODO reset fault switch
+  Serial3.begin(115200);
+  Serial3.println("Orientation Sensor Test"); Serial.println("");
+  while (!Serial3) {
+    ; // wait for serial port to connect. Needed for native USB port only
+  }
+  //
   
   delay(1000);
 //  dispState(state::LAUNCH);
@@ -103,7 +109,22 @@ void setup(void)
 
 
 void loop(void) {
-  getCurrentState();
+  int state = getSerialState();
+  if (state >= 0) dispState(state);
+}
+
+int getSerialState()
+{
+  char receivedChar;
+  if (Serial3.available())
+  {
+    
+    receivedChar = Serial3.read();
+    int state =((int)receivedChar - (int)'0');
+    Serial.print(state);
+    return state;
+  }
+  return -1;
 }
 
 void getCurrentState()
@@ -121,9 +142,12 @@ void getCurrentState()
 
 void dispState(int s) {
 //  Serial.print("%d %d %d", s&0x1, s&0x2, s&0x4);
+// Print bit data for testing
+/*
   Serial.print(s&0x1);
   Serial.print(s&0x2);
   Serial.print(s&0x4);
+  */
   digitalWrite(led_0, s&0x1);
   digitalWrite(led_1, s&0x2);
   digitalWrite(led_2, s&0x4);
