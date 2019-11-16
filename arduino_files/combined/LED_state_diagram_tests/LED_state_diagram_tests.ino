@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <stdbool.h>
+#include <math.h>
 
 #include "enums.c"
 //#include "states_reduced.h"
@@ -87,13 +88,11 @@ void setup(void)
   prevState = state::STATES;
  
   Serial.begin(9600);
-  Serial.println("Orientation Sensor Test"); Serial.println("");
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
   // TODO reset fault switch
   Serial3.begin(115200);
-  Serial3.println("Orientation Sensor Test"); Serial.println("");
   while (!Serial3) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
@@ -109,8 +108,10 @@ void setup(void)
 
 
 void loop(void) {
-  int state = getSerialState();
-  if (state >= 0) dispState(state);
+  state recvState = getCurrentState();
+  state chkState = checkState(recvState);
+  if (chkState != state::STATE_NONE) 
+      dispState(recvState);
 }
 
 int getSerialState()
@@ -121,23 +122,35 @@ int getSerialState()
     
     receivedChar = Serial3.read();
     int state =((int)receivedChar - (int)'0');
+    
     Serial.print(state);
+    
     return state;
   }
-  return -1;
+  return state::STATE_NONE;
 }
 
-void getCurrentState()
+state checkState(state receivedState) {
+  
+  if(receivedState == state::RTL && !digitalRead(RTL_switch)) 
+     return state::STATE_NONE;
+  if(abs(receivedState - currentState) > 1)
+     return state::STATE_NONE;
+  else 
+    return receivedState;
+}
+
+state getCurrentState()
 {
   if(Serial.available()) {
     char input = Serial.read();
-    if ( '0' < input && input < '0' + state::STATES)
+    if ( '0' < input && input < '0' + state::CRAWL)
     {
-      currentState = (state)((int)input - (int)'0');
-      dispState(currentState);
-      printState(currentState);
+      return (state)((int)input - (int)'0');
+      
     }
   }
+  return state::STATE_NONE;
 }
 
 void dispState(int s) {
@@ -152,6 +165,7 @@ void dispState(int s) {
   digitalWrite(led_1, s&0x2);
   digitalWrite(led_2, s&0x4);
 }
+
 void printState(state s)
 {
   switch (s)

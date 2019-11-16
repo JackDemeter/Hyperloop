@@ -9,7 +9,8 @@ enum state
   COAST,
   BRAKE,
   CRAWL,
-  STATES
+  STATES,
+  STATE_NONE
 };
 
 enum faultType
