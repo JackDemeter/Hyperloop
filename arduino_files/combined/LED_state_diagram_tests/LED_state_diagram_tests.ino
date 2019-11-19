@@ -7,28 +7,28 @@
 #include "consts.c"
 
 /**************************************************************
- * Constants defined to replace parameters for testing purposes
+   Constants defined to replace parameters for testing purposes
  **************************************************************/
 
- #define IMU_speed
- #define motor_current_thresh_peak 250 //amps
- #define motor_current_thresh_cont 200//Amps
- #define motor_voltage_thresh 50.4  //V
- #define battery_temp_thresh 60  //degress C
- #define motor_temp_thresh 180 //degrees C
- #define battery_pressure_thresh 10 //psi
+#define IMU_speed
+#define motor_current_thresh_peak 250 //amps
+#define motor_current_thresh_cont 200//Amps
+#define motor_voltage_thresh 50.4  //V
+#define battery_temp_thresh 60  //degress C
+#define motor_temp_thresh 180 //degrees C
+#define battery_pressure_thresh 10 //psi
 
 
- #define IMU_speed
- #define motor_current_peak 250 //amps
- #define motor_current_thresh_cont 200//Amps
- #define motor_voltage_thresh 50.4  //V
- #define battery_temp_thresh 60  //degress C
- #define motor_temp_thresh 180 //degrees C
- #define battery_pressure_thresh 10 //psi
- 
+#define IMU_speed
+#define motor_current_peak 250 //amps
+#define motor_current_thresh_cont 200//Amps
+#define motor_voltage_thresh 50.4  //V
+#define battery_temp_thresh 60  //degress C
+#define motor_temp_thresh 180 //degrees C
+#define battery_pressure_thresh 10 //psi
 
- 
+
+
 
 struct StateDetails
 {
@@ -38,7 +38,7 @@ struct StateDetails
 };
 
 // represent how the arduino should allow motor, brake and led operation for all states (except fault)
-//StateDetails States[state::STATES] = {{true, false, true}, {true, false, false}, {false, true, true}, 
+//StateDetails States[state::STATES] = {{true, false, true}, {true, false, false}, {false, true, true},
 //{false, true, true}, {false, true, true}, {true, false, true}, {false, true, true}};
 
 // Network Data
@@ -56,7 +56,7 @@ int RTL_switch = 7;
 float pressure;
 unsigned long pulseWidth;
 
-int networkState;
+int receivedState;
 bool initialBrake;
 
 // Create current/previous states allows for one shot programming later in the code
@@ -69,7 +69,7 @@ unsigned long startTime;
 void setup(void)
 {
   pinMode(RTL_switch, INPUT);
-//  pinMode(RTL_switch_reset, OUTPUT);
+  //  pinMode(RTL_switch_reset, OUTPUT);
 
   pinMode(led_0, OUTPUT);
   pinMode(led_1, OUTPUT);
@@ -81,12 +81,12 @@ void setup(void)
   digitalWrite(led_0, HIGH);
   digitalWrite(led_1, HIGH);
   digitalWrite(led_2, HIGH);
-  
+
   // initiate default state on start up
-//  networkState = state::STA;
+  //  receivedState = state::STA;
   currentState = state::STA;
   prevState = state::STATES;
- 
+
   Serial.begin(9600);
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
@@ -97,10 +97,10 @@ void setup(void)
     ; // wait for serial port to connect. Needed for native USB port only
   }
   //
-  
+
   delay(1000);
-//  dispState(state::LAUNCH);
-  for(int i = 0; i <= state::STATES; i++) {
+  //  dispState(state::LAUNCH);
+  for (int i = 0; i <= state::STATES; i++) {
     dispState(i);
     delay(500);
   }
@@ -108,62 +108,112 @@ void setup(void)
 
 
 void loop(void) {
-  state recvState = getCurrentState();
-  state chkState = checkState(recvState);
-  if (chkState != state::STATE_NONE) 
-      dispState(recvState);
+  // Update state based on network info
+  state recvState = getSerialState();
+  currentState = checkState(recvState, currentState);
+  dispState(currentState);
 }
 
-int getSerialState()
+state getSerialState()
 {
   char receivedChar;
   if (Serial3.available())
   {
-    
+
     receivedChar = Serial3.read();
-    int state =((int)receivedChar - (int)'0');
-    
-    Serial.print(state);
-    
-    return state;
+    state reqState = ((state)((int)receivedChar - (int)'0'));
+
+    Serial.print(reqState);
+
+    return reqState;
   }
   return state::STATE_NONE;
 }
 
 state checkState(state receivedState) {
-  
-  if(receivedState == state::RTL && !digitalRead(RTL_switch)) 
-     return state::STATE_NONE;
-  if(abs(receivedState - currentState) > 1)
-     return state::STATE_NONE;
-  else 
+
+  if (receivedState == state::RTL && !digitalRead(RTL_switch))
+    return state::STATE_NONE;
+  if (abs(receivedState - currentState) > 1)
+    return state::STATE_NONE;
+  else
     return receivedState;
 }
 
+state checkState(state receivedState, state currentState)
+{
+  // check state (switch case)
+  switch (currentState)
+  {
+    case (state::STA):
+      {
+        if (digitalRead(RTL_switch) && receivedState == state::RTL)
+        {
+          return state::RTL;
+        }
+        break;
+      }
+    case (state::RTL):
+      {
+        if (receivedState == state::STA)return state::STA;
+        if (receivedState == state::LAUNCH)return state::LAUNCH;
+        break;
+      }
+    case (state::LAUNCH):
+      {
+        if (receivedState == state::COAST)return state::COAST;
+        if (receivedState == state::BRAKE)return state::BRAKE;
+        break;
+      }
+    case (state::COAST):
+      {
+        if (receivedState == state::BRAKE)return state::BRAKE;
+        if (receivedState == state::CRAWL)return state::CRAWL;
+        break;
+      }
+    case (state::BRAKE):
+      {
+        if (receivedState == state::CRAWL) return state::CRAWL;
+        if (receivedState == state::STA) return state::STA;
+        break;
+      }
+    case (state::CRAWL):
+      {
+        if (receivedState == state::BRAKE) return state::BRAKE;
+        break;
+      }
+    default:
+      return state::FAULT;
+  }
+  return currentState;
+
+}
+
+
 state getCurrentState()
 {
-  if(Serial.available()) {
+  if (Serial.available()) {
     char input = Serial.read();
     if ( '0' < input && input < '0' + state::CRAWL)
     {
       return (state)((int)input - (int)'0');
-      
+
     }
   }
   return state::STATE_NONE;
 }
 
 void dispState(int s) {
-//  Serial.print("%d %d %d", s&0x1, s&0x2, s&0x4);
-// Print bit data for testing
-/*
-  Serial.print(s&0x1);
-  Serial.print(s&0x2);
-  Serial.print(s&0x4);
+  //  Serial.print("%d %d %d", s&0x1, s&0x2, s&0x4);
+  // Print bit data for testing
+  /*
+    Serial.print(s&0x1);
+    Serial.print(s&0x2);
+    Serial.print(s&0x4);
   */
-  digitalWrite(led_0, s&0x1);
-  digitalWrite(led_1, s&0x2);
-  digitalWrite(led_2, s&0x4);
+  digitalWrite(led_0, s & 0x1);
+  digitalWrite(led_1, s & 0x2);
+  digitalWrite(led_2, s & 0x4);
 }
 
 void printState(state s)
