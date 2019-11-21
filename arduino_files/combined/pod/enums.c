@@ -1,27 +1,5 @@
 #include <stdbool.h>
 
-enum state
-{
-  FAULT,
-  STA,
-  RTL,
-  LAUNCH,
-  COAST,
-  BRAKE,
-  CRAWL,
-  STATES,
-  STATE_NONE
-};
-
-enum faultType
-{
-  NONE,
-  SETUP,
-  COMM_NETWORK_LOSS,
-  COMM_ARDUINO_LOSS,
-  RTL_SKIP,
-  FAULTS
-};
 
 enum sensors
 {
