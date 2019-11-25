@@ -80,6 +80,8 @@ void setup(void)
   pinMode(led_0, OUTPUT);
   pinMode(led_1, OUTPUT);
   pinMode(led_2, OUTPUT);
+  pinMode(motor_pin, OUTPUT);
+  pinMode(brake_pin, OUTPUT);
 
   pinMode(network_led, OUTPUT);
 
@@ -90,6 +92,10 @@ void setup(void)
   digitalWrite(led_1, HIGH);
   digitalWrite(led_2, HIGH);
   digitalWrite(network_led, LOW);
+
+  // For STA switch case
+  digitalWrite(motor_pin,LOW);
+  digitalWrite(brake_pin,HIGH);
 
   // initiate default state on start up
   //  receivedState = state::STA;
@@ -120,6 +126,6 @@ void setup(void)
 void loop(void) {
   // Update state based on network info
   state recvState = getState(Serial);
-  currentState = checkState(recvState, currentState, TSI);
+  currentState = checkState(recvState, currentState, TSI, motor_pin, brake_pin);
   dispState(currentState);
 }

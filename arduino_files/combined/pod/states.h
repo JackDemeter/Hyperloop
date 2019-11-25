@@ -25,7 +25,7 @@ enum faultType
 };
 
 state getState(Stream &refSer); // Gets the state as a character integer (ie '0') from a given serial port 
-state checkState(state receivedState, state currentState, unsigned long *TSI);
+state checkState(state receivedState, state currentState, unsigned long *TSI,  int motor_pin, int brake_pin);
 void dispState(int s);
 void printState(state s);
 

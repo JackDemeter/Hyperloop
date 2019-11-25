@@ -1,8 +1,15 @@
+#include <stdint.h>
+#include <stdbool.h>
+#include <math.h>
+#include "states.h"
+
+
 state getState(Stream &refSer)
 {
   if (refSer.available()) {
     char receivedChar = refSer.read();
-    if ( '0' < receivedChar && receivedChar < '0' + state::CRAWL)
+    Serial.print(receivedChar);
+    if ( '0' <= receivedChar && receivedChar < '0' + state::CRAWL)
     {
       return (state)((int)receivedChar - (int)'0');
     }
@@ -10,54 +17,96 @@ state getState(Stream &refSer)
   return state::STATE_NONE;
 }
 
-state checkState(state receivedState, state currentState, unsigned long *TSI)
+
+
+
+state checkState(state receivedState, state currentState, unsigned long *TSI, int motor_pin, int brake_pin)
 {
+  if (receviedstate == state::FAULT && currentState != state:FAULT) {
+    currentState = state::FAULT;
+    *TSI = millis();
+    Serial.print("TSI: ");
+    Serial.println(*TSI);
+  }
   // check state (switch case)
   switch (currentState)
   {
+
+
+
     case (state::STA):
       {
         if (digitalRead(RTL_switch) && receivedState == state::RTL)
         {
           *TSI = millis();
+
+          digitalWrite(motor_pin, LOW);
+          digitalWrite(brake_pin, HIGH);
+          Serial.print("RTL?");
+
+
           Serial.print("TSI: ");
-          Serial.println(*TSI); 
+          Serial.println(*TSI);
           return state::RTL;
         }
         break;
       }
+
     case (state::RTL):
       {
         if (receivedState == state::STA)
         {
           *TSI = millis();
+
+          digitalWrite(motor_pin, LOW);
+          digitalWrite(brake_pin, HIGH);
+          Serial.print("STA?");
           Serial.print("TSI: ");
-          Serial.println(*TSI); 
+          Serial.println(*TSI);
           return state::STA;
         }
+
         if (receivedState == state::LAUNCH)
         {
           *TSI = millis();
+
+          digitalWrite(motor_pin, HIGH);
+          digitalWrite(brake_pin, LOW);
+          Serial.print("LAUNCH?");
+
           Serial.print("TSI: ");
-          Serial.println(*TSI); 
+          Serial.println(*TSI);
           return state::LAUNCH;
         }
         break;
       }
     case (state::LAUNCH):
       {
+
         if (receivedState == state::COAST)
         {
           *TSI = millis();
+
+          digitalWrite(motor_pin, HIGH);
+          digitalWrite(brake_pin, LOW);
+          Serial.print("Coast?");
+
           Serial.print("TSI: ");
-          Serial.println(*TSI); 
+          Serial.println(*TSI);
           return state::COAST;
         }
+
+
         if (receivedState == state::BRAKE)
         {
           *TSI = millis();
+
+          digitalWrite(motor_pin, LOW);
+          digitalWrite(brake_pin, HIGH);
+          Serial.print("Brake?");
+
           Serial.print("TSI: ");
-          Serial.println(*TSI); 
+          Serial.println(*TSI);
           return state::BRAKE;
         }
         break;
@@ -67,52 +116,81 @@ state checkState(state receivedState, state currentState, unsigned long *TSI)
         if (receivedState == state::BRAKE)
         {
           *TSI = millis();
+
+          digitalWrite(motor_pin, LOW);
+          digitalWrite(brake_pin, HIGH);
+          Serial.print("Brake?");
+
           Serial.print("TSI: ");
-          Serial.println(*TSI); 
+          Serial.println(*TSI);
           return state::BRAKE;
         }
         if (receivedState == state::CRAWL)
         {
           *TSI = millis();
+
+          digitalWrite(motor_pin, HIGH);
+          digitalWrite(brake_pin, LOW);
+          //Serial.print("Crawl?");
+
           Serial.print("TSI: ");
-          Serial.println(*TSI); 
+          Serial.println(*TSI);
           return state::CRAWL;
         }
         break;
       }
     case (state::BRAKE):
       {
-        if (receivedState == state::CRAWL) 
+        if (receivedState == state::CRAWL)
         {
           *TSI = millis();
+
+          digitalWrite(motor_pin, HIGH);
+          digitalWrite(brake_pin, LOW);
+          Serial.print("Crawl?");
+
+
           Serial.print("TSI: ");
-          Serial.println(*TSI); 
+          Serial.println(*TSI);
           return state::CRAWL;
         }
-        if (receivedState == state::STA) 
+        if (receivedState == state::STA)
         {
           *TSI = millis();
+
+          digitalWrite(motor_pin, LOW);
+          digitalWrite(brake_pin, HIGH);
+          Serial.print("STA?");
+
           Serial.print("TSI: ");
-          Serial.println(*TSI); 
+          Serial.println(*TSI);
           return state::STA;
         }
         break;
       }
     case (state::CRAWL):
       {
-        if (receivedState == state::BRAKE) 
+        if (receivedState == state::BRAKE)
         {
           *TSI = millis();
+
+          digitalWrite(motor_pin, LOW);
+          digitalWrite(brake_pin, HIGH);
+          Serial.print("brake?");
           Serial.print("TSI: ");
-          Serial.println(*TSI); 
+          Serial.println(*TSI);
           return state::BRAKE;
         }
         break;
       }
     default:
-      *TSI = millis();
-      Serial.print("TSI: ");
-      Serial.println(*TSI); 
+
+      Serial.print("fault");
+      digitalWrite(motor_pin, LOW);
+      digitalWrite(brake_pin, LOW);
+      Serial.print("Fault?");
+
+
       return state::FAULT;
   }
   return currentState;
