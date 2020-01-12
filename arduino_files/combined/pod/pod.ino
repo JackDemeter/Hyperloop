@@ -95,7 +95,7 @@ void setup(void)
 
   // For STA switch case
   digitalWrite(motor_pin,LOW);
-  digitalWrite(brake_pin,HIGH);
+  digitalWrite(brake_pin,LOW);
 
   // initiate default state on start up
   //  receivedState = state::STA;

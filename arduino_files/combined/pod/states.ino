@@ -9,7 +9,7 @@ state getState(Stream &refSer)
   if (refSer.available()) {
     char receivedChar = refSer.read();
     Serial.print(receivedChar);
-    if ( '0' <= receivedChar && receivedChar < '0' + state::CRAWL)
+    if ( '0' <= receivedChar && receivedChar <= '0' + state::CRAWL)
     {
       return (state)((int)receivedChar - (int)'0');
     }
@@ -22,7 +22,7 @@ state getState(Stream &refSer)
 
 state checkState(state receivedState, state currentState, unsigned long *TSI, int motor_pin, int brake_pin)
 {
-  if (receviedstate == state::FAULT && currentState != state:FAULT) {
+  if (receivedState == state::FAULT && currentState != state::FAULT) {
     currentState = state::FAULT;
     *TSI = millis();
     Serial.print("TSI: ");
@@ -41,7 +41,7 @@ state checkState(state receivedState, state currentState, unsigned long *TSI, in
           *TSI = millis();
 
           digitalWrite(motor_pin, LOW);
-          digitalWrite(brake_pin, HIGH);
+          digitalWrite(brake_pin, LOW);
           Serial.print("RTL?");
 
 
@@ -59,7 +59,7 @@ state checkState(state receivedState, state currentState, unsigned long *TSI, in
           *TSI = millis();
 
           digitalWrite(motor_pin, LOW);
-          digitalWrite(brake_pin, HIGH);
+          digitalWrite(brake_pin, LOW);
           Serial.print("STA?");
           Serial.print("TSI: ");
           Serial.println(*TSI);
@@ -71,7 +71,7 @@ state checkState(state receivedState, state currentState, unsigned long *TSI, in
           *TSI = millis();
 
           digitalWrite(motor_pin, HIGH);
-          digitalWrite(brake_pin, LOW);
+          digitalWrite(brake_pin, HIGH);
           Serial.print("LAUNCH?");
 
           Serial.print("TSI: ");
@@ -88,7 +88,7 @@ state checkState(state receivedState, state currentState, unsigned long *TSI, in
           *TSI = millis();
 
           digitalWrite(motor_pin, HIGH);
-          digitalWrite(brake_pin, LOW);
+          digitalWrite(brake_pin, HIGH);
           Serial.print("Coast?");
 
           Serial.print("TSI: ");
@@ -102,7 +102,7 @@ state checkState(state receivedState, state currentState, unsigned long *TSI, in
           *TSI = millis();
 
           digitalWrite(motor_pin, LOW);
-          digitalWrite(brake_pin, HIGH);
+          digitalWrite(brake_pin, LOW);
           Serial.print("Brake?");
 
           Serial.print("TSI: ");
@@ -118,7 +118,7 @@ state checkState(state receivedState, state currentState, unsigned long *TSI, in
           *TSI = millis();
 
           digitalWrite(motor_pin, LOW);
-          digitalWrite(brake_pin, HIGH);
+          digitalWrite(brake_pin, LOW);
           Serial.print("Brake?");
 
           Serial.print("TSI: ");
@@ -146,7 +146,7 @@ state checkState(state receivedState, state currentState, unsigned long *TSI, in
           *TSI = millis();
 
           digitalWrite(motor_pin, HIGH);
-          digitalWrite(brake_pin, LOW);
+          digitalWrite(brake_pin, HIGH);
           Serial.print("Crawl?");
 
 
@@ -159,7 +159,7 @@ state checkState(state receivedState, state currentState, unsigned long *TSI, in
           *TSI = millis();
 
           digitalWrite(motor_pin, LOW);
-          digitalWrite(brake_pin, HIGH);
+          digitalWrite(brake_pin, LOW);
           Serial.print("STA?");
 
           Serial.print("TSI: ");
@@ -175,7 +175,7 @@ state checkState(state receivedState, state currentState, unsigned long *TSI, in
           *TSI = millis();
 
           digitalWrite(motor_pin, LOW);
-          digitalWrite(brake_pin, HIGH);
+          digitalWrite(brake_pin, LOW);
           Serial.print("brake?");
           Serial.print("TSI: ");
           Serial.println(*TSI);
