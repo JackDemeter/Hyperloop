@@ -17,6 +17,7 @@ class App(QWidget):
         self.ping = 5
         self.connectionPort = "No connection"
         self.state = "No Connection"
+        self.stateInteger = 1
         self.mainWindow = mainWindow
 
         # make QTimer
@@ -33,8 +34,7 @@ class App(QWidget):
         self.buttonlayout = QHBoxLayout(self)   # Sub-Layout for the buttons
 
         self.layout.addStretch()
-        
-        
+
         self.sublayout.addStretch(1)
         self.sublayout.setSpacing(150)
 
@@ -60,14 +60,13 @@ class App(QWidget):
         pixmap = pixmap.scaled(251, 51)
         self.titleLogo.setPixmap(pixmap)
         self.titleLogo.resize(300, 400)
-        self.titleLogo.move(25,-150)
-        
+        self.titleLogo.move(25, -150)
 
         self.initUI()
 
     def initUI(self):
         self.setWindowTitle(self.title)
-        self.setFixedSize(self.width, self.height)
+        self.setGeometry(100, 100, self.width, self.height)
 
         self.sample = QLabel()
         pixmap = QPixmap(r'images\pod.png')
@@ -77,7 +76,6 @@ class App(QWidget):
         self.sublayout.addWidget(self.sample)
         #self.sublayout.addStretch(1)
         self.sublayout.setSpacing(100)
-
 
         # TABLE
 
@@ -195,7 +193,7 @@ class App(QWidget):
         progress.setValue(50)
 
         # set interval to 1 s
-        self.qTimer.setInterval(1000)  # 1000 ms = 1 s
+        self.qTimer.setInterval(20)  # 1000 ms = 1 s
         # connect timeout signal to signal handler
         self.qTimer.timeout.connect(self.update)
         # start timer
@@ -203,10 +201,10 @@ class App(QWidget):
 
     @pyqtSlot()
     def update(self):
-        # TODO update data
-        # TODO create a get data function (TALK TO JAKE)
         # self.status = getStatus()
         self.Statelabel.setText("Status: %s" %(self.state))
+        UDPsending.send_via_udp(self.stateInteger)
+        # TODO: ADD BLOCK FOR UDP READ AND THEN UPDATE GUI VALUES
 
     # creates a slot for the button
     @pyqtSlot()
@@ -220,14 +218,13 @@ class App(QWidget):
             # TODO reengage the brakes
             print('Mounting complete')
             self.Statelabel.setText("State: Safe to Approach")
-            UDPsending.send_via_udp(1)
-
+            self.stateInteger = 1
     # creates a slot for the button
     @pyqtSlot()
     def emergency(self):
         print('Fault State Engaged')
         self.state = "Fault"
-        UDPsending.send_via_udp(0)
+        self.stateInteger = 0
         # TODO engage the fault state on pod
 
     # creates a slot for the button
@@ -235,7 +232,7 @@ class App(QWidget):
     def readyLaunch(self):
         print('Prepared for launch engaged')
         self.state = "Ready to Launch"
-        UDPsending.send_via_udp(1)
+        self.stateInteger = 1
         self.launch = True
         # TODO engage launch of pod
 
@@ -244,7 +241,7 @@ class App(QWidget):
     def launch(self):
         print('Launch engaged')
         self.state = "Launch"
-        UDPsending.send_via_udp(2)
+        self.stateInteger = 2
         self.launch = True
         # TODO engage launch of pod
 
