@@ -5,6 +5,15 @@
 #include "consts.c"
 #include "states.h"
 
+
+/******************************
+ * INCLUDE SENSOR READING FILES
+ ******************************/
+
+ #include "lidar.c"
+ #include "pressure_transducer.c"
+ //etc, etc
+ 
 /**************************************************************
    Constants defined to replace parameters for testing purposes
  **************************************************************/

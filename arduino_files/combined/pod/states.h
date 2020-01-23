@@ -1,6 +1,19 @@
 #ifndef STATES_H
 #define STATES_H
 
+/******************************
+ * INCLUDE SENSOR READING FILES
+ ******************************/
+
+ #include "lidar.c"
+ #include "pressure_transducer.c"
+ //etc, etc
+
+ /* t1_val = transducer_vals(<ins pin num here>)
+    t2_val = transducer_vals(<ins pin num here>)
+    lidar_val = lidar_vals()
+  */
+
 enum state
 {
   FAULT,
