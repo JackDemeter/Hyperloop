@@ -47,7 +47,8 @@ int power_led = 11;
 int network_led = 12;
 int safety_led = 13;
 
-
+int input = 0;
+int pwm = 5;
 
 float pressure;
 unsigned long pulseWidth;
@@ -87,6 +88,8 @@ void setup(void)
 
   pinMode(RTL_switch, INPUT);
 
+  pinMode(pwm, OUTPUT);
+
   //init all lights to high
   digitalWrite(led_0, HIGH);
   digitalWrite(led_1, HIGH);
@@ -123,9 +126,28 @@ void setup(void)
 }
 
 
+
+void motorStartUp() {
+  if (Serial.available()) {
+    Serial.print (1);
+    input = Serial.parseInt();
+    Serial.read();
+  }
+  if ((input > 100) && (input < 255)) {
+    analogWrite (pwm, input);
+
+  }
+  else {
+    analogWrite (pwm, 0);
+  }
+  
+}
+
+
 void loop(void) {
   // Update state based on network info
   state recvState = getState(Serial3);
   currentState = checkState(recvState, currentState, TSI, motor_pin, brake_pin);
   dispState(currentState);
+  
 }
