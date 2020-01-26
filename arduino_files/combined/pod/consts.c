@@ -1,6 +1,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+//countdown (RTL to launch)
+//LAUNCH_TIME_THRESH (from launch to brake)
+//COAST_TIME_THRESH (from coast to brake/fault)
+//CRAWL_TIME_THRESH (from crawl to brake)
 
 
 // preset calculated values for when the pod should engage certain aspects

@@ -125,7 +125,7 @@ void setup(void)
 
 void loop(void) {
   // Update state based on network info
-  state recvState = getState(Serial);
+  state recvState = getState(Serial3);
   currentState = checkState(recvState, currentState, TSI, motor_pin, brake_pin);
   dispState(currentState);
 }
