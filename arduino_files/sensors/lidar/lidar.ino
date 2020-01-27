@@ -42,6 +42,11 @@ void loop()
   if(pulseWidth != 0)
   {
     pulseWidth = pulseWidth / 10; // 10usec = 1 cm of distance
-    Serial.println(pulseWidth); // Print the distance
   }
+}
+
+float lidar_vals()
+{
+  pulseWidth = pulseIn(9, HIGH); // Count how long the pulse is high in microseconds
+  return pulseWidth /= 10; // 10usec = 1 cm of distance
 }
