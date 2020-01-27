@@ -19,7 +19,8 @@ const float BIAS = -0.49 * 1024 / 5;
 //BIAS 4 for 1/8 inch
 //const float BIAS = -1.078 * 1024 / 5;
 
-int transducer = A0;
+int t1 = A0; //transducer 1
+int t2 = A1; //transducer 2
 
 float pressure;
 
@@ -39,4 +40,9 @@ void loop()
   Serial.print(pressure);
   Serial.print("psi");
   Serial.println();
+}
+
+float transducer_vals(int transducer_pin)
+{
+  return pressure = SLOPE * ((float)analogRead(transducer_pin) + BIAS);
 }
