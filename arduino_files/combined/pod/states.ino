@@ -83,6 +83,13 @@ state checkState(state receivedState, state currentState, unsigned long *TSI, in
     case (state::LAUNCH):
       {
 
+        /*  ADD CODE HERE
+        1. Send a PWM signal to the motor controller
+        2. Determine whether to send an off signal (<166) or on signal (166) based on a timer (avoid using delay)
+          Try millis()!
+        
+        */
+        
         if (receivedState == state::COAST)
         {
           *TSI = millis();
@@ -112,6 +119,13 @@ state checkState(state receivedState, state currentState, unsigned long *TSI, in
         break;
       }
     case (state::COAST):
+      /*  ADD CODE HERE
+        1. Send a PWM signal to the motor controller
+        2. Determine whether to send an off signal (<166) or on signal (166) based on a timer (avoid using delay)
+          Try millis()!
+        
+        */
+      
       {
         if (receivedState == state::BRAKE)
         {
@@ -169,6 +183,14 @@ state checkState(state receivedState, state currentState, unsigned long *TSI, in
         break;
       }
     case (state::CRAWL):
+      /*  ADD CODE HERE
+        1. Send a PWM signal to the motor controller
+        2. Determine whether to send an off signal (<166) or on signal (166) based on a timer (avoid using delay)
+          Try millis()!
+          
+          try to make the time on less in this state to simulate the slower motor motion
+        
+        */
       {
         if (receivedState == state::BRAKE)
         {
