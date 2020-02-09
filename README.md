@@ -13,29 +13,41 @@ Follow instructions at https://phoenixnap.com/kb/install-node-js-npm-on-windows 
 
 ### INITIALIZE PROJECT ###
 Open a powershell instance
+
 cd to web_based_GUI/
+
 run: npm install - This will install dependencies based on the contents of the package.json file.
 
 ### TO RUN THE SERVER ###
 Open a powershell instance
+
 cd to web_based_GUI/
+
 run: npm start
+
 app should be running at http://localhost:3000
 
 ## HARDWARE ##
 A list of all hardware components used on this project:
 #### Controllers/Radios/Shields ####
 2	Arduino Due
+
 1	M900 Ubiquiti Rocket
+
 3	SainSmart Ethernet shield 
+
 1	Arduino Uno
 #### Sensors ####
 3	Adafruit BMO055
+
 2	Sharp GP2Y0A02YK0F
+
 1	Adafruit MPRLS
 #### TBD ####
 17	Negative Temperature Coefficient (NTC) thermistor
+
 1	Analog Switch
+
 1 	Packet Sniffer
 
 # Arduino Structure #
