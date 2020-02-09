@@ -7,6 +7,21 @@ This project combines 3 arduinos and a radio to monitor and determine the state 
 via the SpaceX Base Station and reports the telemetry of the pod back to the base station. One arduino is dedicated to managing
 the state of the pod, another is for network communication and the third is given to SpaceX to calculate the velocity of the pod.
 
+## GUI SET UP ##
+### INSTALL NPM and NODE ###
+Follow instructions at https://phoenixnap.com/kb/install-node-js-npm-on-windows to install npm and nodejs.
+
+### INITIALIZE PROJECT ###
+Open a powershell instance
+cd to web_based_GUI/
+run: npm install - This will install dependencies based on the contents of the package.json file.
+
+### TO RUN THE SERVER ###
+Open a powershell instance
+cd to web_based_GUI/
+run: npm start
+app should be running at http://localhost:3000
+
 ## HARDWARE ##
 A list of all hardware components used on this project:
 #### Controllers/Radios/Shields ####
