@@ -100,7 +100,7 @@ void establishExternal() {
         Serial.print(", port ");
         Serial.println(Udp.remotePort());
       */
-      Serial.write('C');
+      //Serial.write('C');
       connection = true;
     }
     packet_size = Udp.parsePacket();
@@ -154,6 +154,11 @@ void loop() {
   if (packet_size != 0) {
     packet_data = Udp.read();
     packet[1] = packet_data;
+    packet[2] = 0;
+    packet[3] = 0;
+    packet[4] = 0;
+    packet[5] = packet_data;
+    Serial.write((int)'0' + packet_data);
   }
   sendUDP(packet, PACKET_SIZE, server, 3000);
   sendUDP(packet, PACKET_SIZE, computer, 3000);

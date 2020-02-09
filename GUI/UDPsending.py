@@ -16,3 +16,5 @@ def send_via_udp(MESSAGE):
     print(Message_as_bytes)
     sock.close()
 
+#while(True):
+#    send_via_udp(input())
