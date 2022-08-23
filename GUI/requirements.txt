@@ -2,7 +2,7 @@ cycler==0.10.0
 cython==0.29.2
 kiwisolver==1.0.1
 matplotlib==3.0.2
-numpy==1.16.0rc1
+numpy==1.22.0
 object-detection==0.1
 pillow==5.3.0
 pyparsing==2.3.0
